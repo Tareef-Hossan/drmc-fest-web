@@ -1,0 +1,136 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isAdmin() {
+      return request.auth != null
+        && exists(/databases/$(database)/documents/users/$(request.auth.uid))
+        && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+
+    function isOwner(userId) {
+      return request.auth != null && request.auth.uid == userId;
+    }
+
+    function isStr(v, min, max) {
+      return v is string && v.size() >= min && v.size() <= max;
+    }
+
+    function validEmail(v) {
+      return isStr(v, 5, 120) && v.matches('^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$');
+    }
+
+    // Public read-only data (admin edits)
+    match /fests/{festId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+    
+    match /events/{eventId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // Registrations: anyone can CREATE a valid pending one; admin can read all, users can read their own
+    match /registrations/{regId} {
+      allow read: if isAdmin() || (request.auth != null && resource.data.userId == request.auth.uid);
+
+      allow create: if request.resource.data.keys().hasOnly(
+            ['regId','eventId','name','email','phone','institution','teamName',
+             'txId','consent','fee','paymentStatus','createdAt','updatedAt','userId'])
+        && request.resource.data.keys().hasAll(
+            ['regId','eventId','name','email','phone','institution',
+             'txId','consent','fee','paymentStatus','createdAt','updatedAt'])
+        && regId.matches('^DRMC26-[A-Z0-9]{8}$')
+        && request.resource.data.regId == regId
+        && isStr(request.resource.data.name, 2, 100)
+        && validEmail(request.resource.data.email)
+        && request.resource.data.phone.matches('^[0-9]{11}$')
+        && isStr(request.resource.data.institution, 2, 150)
+        && isStr(request.resource.data.eventId, 1, 100)
+        && isStr(request.resource.data.txId, 6, 40)
+        && request.resource.data.consent == true
+        && request.resource.data.fee is number
+        && request.resource.data.fee >= 0
+        && request.resource.data.fee <= 10000
+        && request.resource.data.paymentStatus == 'pending'
+        && request.resource.data.createdAt == request.time
+        && request.resource.data.updatedAt == request.time
+        && (!('teamName' in request.resource.data)
+            || request.resource.data.teamName == null
+            || isStr(request.resource.data.teamName, 1, 80))
+        && (!('userId' in request.resource.data)
+            || request.resource.data.userId == null
+            || isStr(request.resource.data.userId, 1, 100));
+
+      // Allow admin to update paymentStatus, and users to update project field
+      allow update: if (isAdmin()
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['paymentStatus','updatedAt','project'])
+        && request.resource.data.paymentStatus in ['pending','confirmed','rejected'])
+        || (request.auth != null
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['project','updatedAt'])
+        && 'project' in request.resource.data
+        && request.resource.data.project is map
+        && isStr(request.resource.data.project.name, 1, 200)
+        && isStr(request.resource.data.project.fileUrl, 1, 500)
+        && isStr(request.resource.data.project.fileName, 1, 200)
+        && request.resource.data.updatedAt == request.time);
+      allow delete: if isAdmin();
+    }
+
+    // Volunteers: same pattern
+    match /volunteers/{volId} {
+      allow read: if isAdmin();
+
+      allow create: if request.resource.data.keys().hasOnly(
+            ['volunteerId','name','email','phone','institution','team','availability',
+             'reason','experience','status','createdAt','updatedAt'])
+        && request.resource.data.keys().hasAll(
+            ['volunteerId','name','email','phone','institution','team','availability',
+             'reason','status','createdAt','updatedAt'])
+        && volId.matches('^[a-f0-9-]{36}$')
+        && request.resource.data.volunteerId == volId
+        && isStr(request.resource.data.name, 2, 100)
+        && validEmail(request.resource.data.email)
+        && request.resource.data.phone.matches('^[0-9]{11}$')
+        && isStr(request.resource.data.institution, 2, 150)
+        && request.resource.data.team in ['Event Operations','Hospitality','Tech & Media',
+                                          'Design & Decor','Logistics & Security','Sponsorship & PR']
+        && request.resource.data.availability in ['All 3 days','2 days','1 day']
+        && isStr(request.resource.data.reason, 2, 1000)
+        && (!('experience' in request.resource.data) || isStr(request.resource.data.experience, 0, 1000))
+        && request.resource.data.status == 'pending'
+        && request.resource.data.createdAt == request.time
+        && request.resource.data.updatedAt == request.time;
+
+      allow update: if isAdmin()
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status','updatedAt'])
+        && request.resource.data.status is string;
+      allow delete: if isAdmin();
+    }
+
+    // Users: users can create their own profile, read their own data, admin can read all
+    match /users/{userId} {
+      allow read: if isAdmin() || isOwner(userId);
+      allow create: if isOwner(userId)
+        && request.resource.data.keys().hasOnly(['uid','email','name','phone','institution','role','emailVerified','createdAt','updatedAt'])
+        && request.resource.data.uid == userId
+        && request.resource.data.uid == request.auth.uid
+        && validEmail(request.resource.data.email)
+        && isStr(request.resource.data.name, 2, 100)
+        && request.resource.data.phone.matches('^[0-9]{11}$')
+        && isStr(request.resource.data.institution, 2, 150)
+        && request.resource.data.role in ['user','admin']
+        && request.resource.data.createdAt == request.time
+        && request.resource.data.updatedAt == request.time;
+      allow update: if isOwner(userId)
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['emailVerified','updatedAt'])
+        && request.resource.data.updatedAt == request.time;
+    }
+
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

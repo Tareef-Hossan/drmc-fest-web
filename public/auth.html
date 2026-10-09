@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Login or Sign up for DRMC IT Club Events">
+  <meta name="theme-color" content="#1de9b6">
+  <title>Login / Sign Up - DRMC IT Club</title>
+  <link rel="icon" type="image/png" href="assets/images/logo.png">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script type="module" src="firebase-client.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #000;
+      --fg: #fff;
+      --mut: #9a9a9a;
+      --card: rgba(16, 22, 20, 0.8);
+      --line: rgba(255,255,255,0.09);
+      --cy: #1de9b6;
+      --bl: #0c8f6d;
+      --hv: rgba(255,255,255,0.09);
+      --inbg: rgba(11, 16, 14, 0.6);
+      --inbd: rgba(255,255,255,0.14);
+      --g1: #2ef2c0;
+      --g2: #17c9a0;
+      --g3: #0fa57f;
+      color-scheme: dark;
+    }
+
+    html[data-theme="light"] {
+      --bg: #f8fafc;
+      --fg: #0f172a;
+      --mut: #64748b;
+      --card: rgba(255, 255, 255, 0.8);
+      --line: rgba(0,0,0,0.1);
+      --cy: #0d9488;
+      --bl: #0f766e;
+      --hv: rgba(0,0,0,0.05);
+      --inbg: rgba(255,255,255,0.8);
+      --inbd: rgba(0,0,0,0.2);
+      --g1: #14b8a6;
+      --g2: #0d9488;
+      --g3: #0f766e;
+      color-scheme: light;
+    }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--fg);
+      font-family: 'Inter Tight', system-ui, -apple-system, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .scene {
+      position: fixed;
+      inset: 0;
+      z-index: -1;
+      pointer-events: none;
+      overflow: hidden;
+    }
+
+    .scene-glow {
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(70% 45% at 50% 0%, rgba(29,233,182,0.22), transparent 58%),
+                  radial-gradient(50% 40% at 86% 78%, rgba(15,165,127,0.2), transparent 62%),
+                  radial-gradient(42% 32% at 12% 72%, rgba(29,233,182,0.1), transparent 55%),
+                  #020806;
+    }
+
+    html[data-theme="light"] .scene-glow {
+      background: radial-gradient(70% 45% at 50% 0%, rgba(29,233,182,0.28), transparent 60%),
+                  radial-gradient(45% 40% at 92% 30%, rgba(110,200,255,0.22), transparent 65%),
+                  radial-gradient(50% 45% at 8% 85%, rgba(46,242,192,0.22), transparent 65%),
+                  linear-gradient(160deg, #ecfff7 0%, #f5fbff 45%, #effff4 100%);
+    }
+
+    .box {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 32px;
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+      max-width: 420px;
+      width: 100%;
+    }
+
+    html[data-theme="light"] .box {
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.05);
+    }
+
+    .btn {
+      display: inline-block;
+      background: linear-gradient(90deg, #1de9b6, #0fa57f);
+      box-shadow: 0 0 26px rgba(29,233,182,0.4);
+      border-radius: 999px;
+      padding: 0.8em 2em;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: #02140f;
+      border: 0;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+      width: 100%;
+    }
+
+    .btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 0 42px rgba(29,233,182,0.75);
+    }
+
+    .btn.ghost {
+      background: var(--hv);
+      box-shadow: none;
+      color: var(--fg);
+      border: 1px solid rgba(29,233,182,0.35);
+    }
+
+    .in {
+      width: 100%;
+      background: var(--inbg);
+      border: 1px solid var(--inbd);
+      border-radius: 10px;
+      padding: 0.8em 1em;
+      color: var(--fg);
+      font: inherit;
+      font-size: 14px;
+      margin-bottom: 16px;
+    }
+
+    .in:focus {
+      outline: 2px solid var(--bl);
+      border-color: transparent;
+    }
+
+    .grad {
+      background: linear-gradient(90deg, var(--g1), var(--g2) 55%, var(--g3));
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+
+    .tab-btn {
+      flex: 1;
+      padding: 12px;
+      border: none;
+      background: var(--hv);
+      color: var(--mut);
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.2s;
+      border-radius: 8px;
+    }
+
+    .tab-btn.active {
+      background: linear-gradient(90deg, #1de9b6, #0fa57f);
+      color: #02140f;
+    }
+
+    .brand .logo-light {
+      display: none;
+    }
+
+    html[data-theme="light"] .brand .logo-dark {
+      display: none;
+    }
+
+    html[data-theme="light"] .brand .logo-light {
+      display: block;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 48px;
+      padding: 0;
+      border: 0;
+      background: none;
+      margin-bottom: 24px;
+    }
+
+    .brand img {
+      height: 56px;
+      width: auto;
+      max-width: none;
+      object-fit: contain;
+      display: block;
+    }
+
+    .error-msg {
+      color: #ef4444;
+      font-size: 13px;
+      margin-top: 8px;
+      display: none;
+    }
+
+    .success-msg {
+      color: var(--cy);
+      font-size: 13px;
+      margin-top: 8px;
+      display: none;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+  </style>
+</head>
+<body>
+  <div class="scene" aria-hidden="true">
+    <div class="scene-glow"></div>
+  </div>
+
+  <div class="box">
+    <button class="brand">
+      <img class="logo-dark" src="assets/images/logo.png" alt="DRMC IT Club logo">
+      <img class="logo-light" src="assets/images/logo-black.png" alt="" aria-hidden="true">
+    </button>
+
+    <!-- Tab Buttons -->
+    <div class="flex gap-2 mb-6">
+      <button class="tab-btn active" id="login-tab" onclick="showLogin()">Login</button>
+      <button class="tab-btn" id="signup-tab" onclick="showSignup()">Sign Up</button>
+    </div>
+
+    <!-- Login Form -->
+    <form id="login-form">
+      <div>
+        <label class="block text-sm font-medium mb-2" style="color: var(--mut);">Email</label>
+        <input type="email" id="login-email" class="in" placeholder="your@email.com" required>
+      </div>
+      <div>
+        <label class="block text-sm font-medium mb-2" style="color: var(--mut);">Password</label>
+        <input type="password" id="login-password" class="in" placeholder="Enter password" required>
+      </div>
+      <button type="submit" class="btn">Login</button>
+      <p id="login-error" class="error-msg"></p>
+      <p id="login-success" class="success-msg"></p>
+    </form>
+
+    <!-- Signup Form -->
+    <form id="signup-form" class="hidden">
+      <div>
+        <label class="block text-sm font-medium mb-2" style="color: var(--mut);">Full Name</label>
+        <input type="text" id="signup-name" class="in" placeholder="John Doe" required>
+      </div>
+      <div>
+        <label class="block text-sm font-medium mb-2" style="color: var(--mut);">Email</label>
+        <input type="email" id="signup-email" class="in" placeholder="your@email.com" required>
+      </div>
+      <div>
+        <label class="block text-sm font-medium mb-2" style="color: var(--mut);">Phone Number</label>
+        <input type="tel" id="signup-phone" class="in" placeholder="01712345678" required>
+      </div>
+      <div>
+        <label class="block text-sm font-medium mb-2" style="color: var(--mut);">Institution</label>
+        <input type="text" id="signup-institution" class="in" placeholder="Your school/college" required>
+      </div>
+      <div>
+        <label class="block text-sm font-medium mb-2" style="color: var(--mut);">Password</label>
+        <input type="password" id="signup-password" class="in" placeholder="Min 6 characters" required minlength="6">
+      </div>
+      <div>
+        <label class="block text-sm font-medium mb-2" style="color: var(--mut);">Confirm Password</label>
+        <input type="password" id="signup-confirm" class="in" placeholder="Confirm password" required>
+      </div>
+      <button type="submit" class="btn">Create Account</button>
+      <p id="signup-error" class="error-msg"></p>
+      <p id="signup-success" class="success-msg"></p>
+    </form>
+
+    <p class="text-center text-sm mt-6" style="color: var(--mut);">
+      <a href="/" style="color: var(--cy);">← Back to Home</a>
+    </p>
+  </div>
+
+  <script type="module">
+    import { onAuthStateChange } from './firebase-client.js';
+
+    // Check if user is already logged in
+    onAuthStateChange((user) => {
+      if (user) {
+        // User is logged in, redirect to dashboard
+        window.location.href = 'dashboard.html';
+      }
+    });
+
+    // Tab switching
+    window.showLogin = function() {
+      document.getElementById('login-form').classList.remove('hidden');
+      document.getElementById('signup-form').classList.add('hidden');
+      document.getElementById('login-tab').classList.add('active');
+      document.getElementById('signup-tab').classList.remove('active');
+    };
+
+    window.showSignup = function() {
+      document.getElementById('login-form').classList.add('hidden');
+      document.getElementById('signup-form').classList.remove('hidden');
+      document.getElementById('login-tab').classList.remove('active');
+      document.getElementById('signup-tab').classList.add('active');
+    };
+
+    // Login form handler
+    document.getElementById('login-form').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      const email = document.getElementById('login-email').value;
+      const password = document.getElementById('login-password').value;
+      const errorEl = document.getElementById('login-error');
+      const successEl = document.getElementById('login-success');
+
+      errorEl.style.display = 'none';
+      successEl.style.display = 'none';
+
+      if (!window.FestAuth) {
+        errorEl.textContent = 'Firebase not loaded. Please refresh the page.';
+        errorEl.style.display = 'block';
+        return;
+      }
+
+      const result = await window.FestAuth.login(email, password);
+
+      if (result.success) {
+        successEl.textContent = 'Login successful! Redirecting...';
+        successEl.style.display = 'block';
+        setTimeout(() => {
+          window.location.href = 'dashboard.html';
+        }, 1000);
+      } else {
+        errorEl.textContent = result.error;
+        errorEl.style.display = 'block';
+      }
+    });
+
+    // Signup form handler
+    document.getElementById('signup-form').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      const name = document.getElementById('signup-name').value;
+      const email = document.getElementById('signup-email').value;
+      const phone = document.getElementById('signup-phone').value;
+      const institution = document.getElementById('signup-institution').value;
+      const password = document.getElementById('signup-password').value;
+      const confirm = document.getElementById('signup-confirm').value;
+      const errorEl = document.getElementById('signup-error');
+      const successEl = document.getElementById('signup-success');
+
+      errorEl.style.display = 'none';
+      successEl.style.display = 'none';
+
+      // Validate phone number
+      if (!/^[0-9]{11}$/.test(phone.replace(/\D/g, ''))) {
+        errorEl.textContent = 'Phone number must be 11 digits';
+        errorEl.style.display = 'block';
+        return;
+      }
+
+      // Validate password match
+      if (password !== confirm) {
+        errorEl.textContent = 'Passwords do not match';
+        errorEl.style.display = 'block';
+        return;
+      }
+
+      if (!window.FestAuth) {
+        errorEl.textContent = 'Firebase not loaded. Please refresh the page.';
+        errorEl.style.display = 'block';
+        return;
+      }
+
+      const result = await window.FestAuth.signup(email, password, name, phone, institution);
+
+      if (result.success) {
+        successEl.textContent = result.message;
+        successEl.style.display = 'block';
+        // Clear form
+        document.getElementById('signup-form').reset();
+        // Switch to login tab after 2 seconds
+        setTimeout(() => {
+          showLogin();
+        }, 2000);
+      } else {
+        errorEl.textContent = result.error;
+        errorEl.style.display = 'block';
+      }
+    });
+  </script>
+</body>
+</html>

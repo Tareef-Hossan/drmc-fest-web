@@ -1,0 +1,161 @@
+[
+  {
+    "order": 1,
+    "day": "Day 1",
+    "date": "8 Oct",
+    "subtitle": "Opening & Kick-off",
+    "items": [
+      {
+        "start": "11:00",
+        "end": "13:00",
+        "event": "Opening Ceremony"
+      },
+      {
+        "start": "14:30",
+        "end": "17:00",
+        "event": "Arcane Draw · Chess Showdown · Crack the Code · EFootball Tournament · Clash Royale Tournament · Tech Conference · Digital Art, Mobile Photography & Poster Design Exhibitions (simultaneous sessions)"
+      },
+      {
+        "start": "14:30",
+        "end": "15:00",
+        "event": "Gaming Quiz"
+      },
+      {
+        "start": "15:15",
+        "end": "15:45",
+        "event": "Robo Quiz"
+      },
+      {
+        "start": "16:00",
+        "end": "16:30",
+        "event": "Pop Sci-Fi Quiz"
+      }
+    ]
+  },
+  {
+    "order": 2,
+    "day": "Day 2",
+    "date": "9 Oct",
+    "subtitle": "Exhibitions, Tournaments & Quizzes",
+    "items": [
+      {
+        "start": "09:00",
+        "end": "17:00",
+        "event": "Project Display · Scrapbook · Wall Magazine · Website Showcase · App Showcase · Digital Art, Mobile Photography & Poster Design Exhibitions · Arcane Draw · Chess Showdown · Valorant Cup · FC 26 · F1 · Minecraft PVP Duel · EFootball · Clash Royale · Tech Conference (all day)"
+      },
+      {
+        "start": "09:00",
+        "end": "15:00",
+        "event": "Robo Soccer"
+      },
+      {
+        "start": "10:45",
+        "end": "11:15",
+        "event": "Buzzer Quiz (Preliminaries) & Informatics Olympiad"
+      },
+      {
+        "start": "11:30",
+        "end": "12:00",
+        "event": "Potterhead Quiz"
+      },
+      {
+        "start": "12:15",
+        "end": "12:45",
+        "event": "TV Series Quiz"
+      },
+      {
+        "start": "13:00",
+        "end": "14:00",
+        "event": "Lunch Break"
+      },
+      {
+        "start": "14:00",
+        "end": "15:30",
+        "event": "Buzzer Quiz (Final Round)"
+      },
+      {
+        "start": "14:30",
+        "end": "15:00",
+        "event": "Techquest Hunt (Preliminaries)"
+      },
+      {
+        "start": "15:00",
+        "end": "17:00",
+        "event": "Google It"
+      },
+      {
+        "start": "16:00",
+        "end": "18:00",
+        "event": "Mega Quiz"
+      }
+    ]
+  },
+  {
+    "order": 3,
+    "day": "Day 3",
+    "date": "10 Oct",
+    "subtitle": "Finals, Competitions & Closing",
+    "items": [
+      {
+        "start": "09:00",
+        "end": "16:00",
+        "event": "Project Display · Scrapbook · Wall Magazine · Website Showcase · App Showcase · Digital Art, Mobile Photography & Poster Design Exhibitions · Tech Conference · Arcane Draw · Chess Showdown · Valorant Cup · FC 26 · F1 · Minecraft PVP Duel · EFootball · Clash Royale (continuing)"
+      },
+      {
+        "start": "09:00",
+        "end": "12:00",
+        "event": "Line Following Robot"
+      },
+      {
+        "start": "10:00",
+        "end": "14:00",
+        "event": "Programming Contest (Final Round)"
+      },
+      {
+        "start": "10:00",
+        "end": "13:00",
+        "event": "Techquest Hunt (Final)"
+      },
+      {
+        "start": "10:00",
+        "end": "10:30",
+        "event": "Team Quiz"
+      },
+      {
+        "start": "10:45",
+        "end": "11:15",
+        "event": "FIFA Fiesta"
+      },
+      {
+        "start": "11:30",
+        "end": "12:00",
+        "event": "IQ Olympiad"
+      },
+      {
+        "start": "12:00",
+        "end": "16:00",
+        "event": "Mini Soccer"
+      },
+      {
+        "start": "12:15",
+        "end": "12:45",
+        "event": "Anime Quiz"
+      },
+      {
+        "start": "13:00",
+        "end": "14:00",
+        "event": "Lunch Break"
+      },
+      {
+        "start": "14:00",
+        "end": "14:30",
+        "event": "Marvel DC Quiz"
+      },
+      {
+        "start": "16:00",
+        "end": "18:30",
+        "event": "Prize Giving Ceremony"
+      }
+    ]
+  }
+]

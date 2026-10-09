@@ -1,0 +1,41 @@
+{
+  "tech-carnival-2026": {
+    "id": "tech-carnival-2026",
+    "name": "9th DRMC International Tech Carnival 2026",
+    "description": "Three days of programming, robotics, gaming, showcases, exhibitions, olympiads and quizzes. The biggest tech event in Bangladesh.",
+    "startDate": "2026-10-08",
+    "endDate": "2026-10-10",
+    "venue": "Dhaka Residential Model College",
+    "image": "https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=800",
+    "status": "upcoming",
+    "category": "Tech Festival",
+    "organization": "DRMC IT Club",
+    "createdAt": "2024-01-01"
+  },
+  "winter-tech-fest-2026": {
+    "id": "winter-tech-fest-2026",
+    "name": "Winter Tech Fest 2026",
+    "description": "A winter celebration of technology featuring hackathons, workshops, and tech quizzes. Join us for three days of innovation and learning.",
+    "startDate": "2026-12-15",
+    "endDate": "2026-12-17",
+    "venue": "Dhaka Residential Model College",
+    "image": "https://images.unsplash.com/photo-1518770660439-4636190af475?w=800",
+    "status": "upcoming",
+    "category": "Tech Festival",
+    "organization": "DRMC IT Club",
+    "createdAt": "2024-06-01"
+  },
+  "freshers-tech-fest-2027": {
+    "id": "freshers-tech-fest-2027",
+    "name": "Freshers Tech Fest 2027",
+    "description": "Welcome new students to the world of technology! Coding challenges, AI workshops, and introductory tech sessions for beginners.",
+    "startDate": "2027-01-20",
+    "endDate": "2027-01-22",
+    "venue": "Dhaka Residential Model College",
+    "image": "https://images.unsplash.com/photo-1531482615713-2afd69097998?w=800",
+    "status": "upcoming",
+    "category": "Tech Festival",
+    "organization": "DRMC IT Club",
+    "createdAt": "2024-08-01"
+  }
+}

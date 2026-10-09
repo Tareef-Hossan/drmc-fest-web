@@ -1,0 +1,984 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="View fest details and explore events">
+  <meta name="theme-color" content="#1de9b6">
+  <title>Fest Details - DRMC IT Club</title>
+  <link rel="icon" type="image/png" href="assets/images/logo.png">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #000;
+      --fg: #fff;
+      --mut: #9a9a9a;
+      --card: rgba(16, 22, 20, 0.8);
+      --line: rgba(255,255,255,0.09);
+      --cy: #1de9b6;
+      --bl: #0c8f6d;
+      --nav: rgba(0,0,0,0.8);
+      --tbi: #d8d8d8;
+      --hv: rgba(255,255,255,0.09);
+      --inbg: rgba(11, 16, 14, 0.6);
+      --inbd: rgba(255,255,255,0.14);
+      --g1: #2ef2c0;
+      --g2: #17c9a0;
+      --g3: #0fa57f;
+      color-scheme: dark;
+      transition: background 0.3s ease, color 0.3s ease;
+    }
+    
+    html[data-theme="light"] {
+      --bg: #f8fafc;
+      --fg: #0f172a;
+      --mut: #64748b;
+      --card: rgba(255, 255, 255, 0.8);
+      --line: rgba(0,0,0,0.1);
+      --cy: #0d9488;
+      --bl: #0f766e;
+      --nav: rgba(255,255,255,0.9);
+      --tbi: #334155;
+      --hv: rgba(0,0,0,0.05);
+      --inbg: rgba(255,255,255,0.8);
+      --inbd: rgba(0,0,0,0.2);
+      --g1: #14b8a6;
+      --g2: #0d9488;
+      --g3: #0f766e;
+      color-scheme: light;
+    }
+    
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--fg);
+      font-family: 'Inter Tight', system-ui, -apple-system, sans-serif;
+      overflow-x: hidden;
+      isolation: isolate;
+    }
+    
+    .btn {
+      display: inline-block;
+      background: linear-gradient(90deg, #1de9b6, #0fa57f);
+      box-shadow: 0 0 26px rgba(29,233,182,0.4);
+      border-radius: 999px;
+      padding: 0.8em 2em;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: #02140f;
+      border: 0;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    
+    .btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 0 42px rgba(29,233,182,0.75);
+    }
+    
+    .btn.ghost {
+      background: var(--hv);
+      box-shadow: none;
+      color: var(--fg);
+      border: 1px solid rgba(29,233,182,0.35);
+    }
+    
+    .grad {
+      background: linear-gradient(90deg, var(--g1), var(--g2) 55%, var(--g3));
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+    
+    .box {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 24px;
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    }
+    
+    html[data-theme="light"] .box {
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.05);
+    }
+    
+    .bookmark-btn {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.3s;
+      z-index: 10;
+    }
+    
+    .bookmark-btn:hover {
+      transform: scale(1.1);
+      border-color: var(--cy);
+    }
+    
+    .bookmark-btn.bookmarked {
+      color: #f59e0b;
+      border-color: #f59e0b;
+    }
+    
+    .event-card {
+      transition: transform 0.3s, border-color 0.3s, box-shadow 0.3s;
+      cursor: pointer;
+    }
+    
+    .event-card:hover {
+      transform: translateY(-4px);
+      border-color: var(--cy);
+      box-shadow: 0 0 26px rgba(29,233,182,0.3);
+    }
+    
+    .in {
+      width: 100%;
+      background: var(--inbg);
+      border: 1px solid var(--inbd);
+      border-radius: 10px;
+      padding: 0.8em 1em;
+      color: var(--fg);
+      font: inherit;
+      font-size: 14px;
+    }
+    
+    .in:focus {
+      outline: 2px solid var(--bl);
+      border-color: transparent;
+    }
+    
+    .chip {
+      display: inline-flex;
+      gap: 8px;
+      align-items: center;
+      padding: 0.6em 1em;
+      border: 1px solid var(--inbd);
+      border-radius: 999px;
+      font-size: 13px;
+      cursor: pointer;
+    }
+    
+    .chip.active {
+      color: #fff;
+      background: var(--bl);
+      border-color: var(--cy);
+      box-shadow: 0 0 14px rgba(29,233,182,0.35);
+    }
+    
+    .status-upcoming {
+      background: rgba(29,233,182,0.15);
+      color: var(--cy);
+      border: 1px solid rgba(29,233,182,0.3);
+    }
+    
+    .status-ongoing {
+      background: rgba(255,200,60,0.15);
+      color: #f5b82e;
+      border: 1px solid rgba(255,200,60,0.3);
+    }
+    
+    .status-completed {
+      background: rgba(100,100,100,0.15);
+      color: #9a9a9a;
+      border: 1px solid rgba(100,100,100,0.3);
+    }
+    
+    .scene {
+      position: fixed;
+      inset: 0;
+      z-index: -1;
+      pointer-events: none;
+      overflow: hidden;
+    }
+    
+    .scene-glow {
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(70% 45% at 50% 0%, rgba(29,233,182,0.22), transparent 58%),
+                  radial-gradient(50% 40% at 86% 78%, rgba(15,165,127,0.2), transparent 62%),
+                  radial-gradient(42% 32% at 12% 72%, rgba(29,233,182,0.1), transparent 55%),
+                  #020806;
+    }
+    
+    .scene-wall {
+      position: absolute;
+      inset: 0;
+      background-image: linear-gradient(rgba(29,233,182,0.14) 1px, transparent 1px),
+                        linear-gradient(90deg, rgba(29,233,182,0.12) 1px, transparent 1px);
+      background-size: 52px 52px;
+      mask-image: radial-gradient(ellipse 68% 58% at 50% 32%, #000 8%, transparent 72%);
+      -webkit-mask-image: radial-gradient(ellipse 68% 58% at 50% 32%, #000 8%, transparent 72%);
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .animate-in {
+      animation: fadeIn 0.6s ease-out forwards;
+    }
+    
+    .fxr {
+      will-change: opacity, translate;
+      opacity: 0;
+      translate: 0 40px;
+      transition: opacity 0.7s cubic-bezier(0.22, 1, 0.36, 1), translate 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    
+    .fxr.fxu {
+      translate: 0 -40px;
+    }
+    
+    .fxr.fxs {
+      opacity: 1;
+      translate: 0 0;
+    }
+    
+    .fxs {
+      opacity: 1;
+      translate: 0 0;
+    }
+    
+    .brand .logo-light {
+      display: none;
+    }
+    
+    html[data-theme="light"] .brand .logo-dark {
+      display: none;
+    }
+    
+    html[data-theme="light"] .brand .logo-light {
+      display: block;
+    }
+    
+    .brand {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 48px;
+      padding: 0;
+      border: 0;
+      background: none;
+    }
+    
+    .brand img {
+      height: 56px;
+      width: auto;
+      max-width: none;
+      object-fit: contain;
+      display: block;
+    }
+    
+    .in {
+      width: 100%;
+      background: var(--inbg);
+      border: 1px solid var(--inbd);
+      border-radius: 10px;
+      padding: 0.8em 1em;
+      color: var(--fg);
+      font: inherit;
+      font-size: 14px;
+    }
+    
+    .in:focus {
+      outline: 2px solid var(--bl);
+      border-color: transparent;
+    }
+    
+    label.l {
+      display: block;
+      font-size: 11px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--mut);
+      margin: 0 0 6px;
+    }
+
+    .fest-showcase {
+      overflow: hidden;
+      padding: 40px 0;
+      background: var(--card);
+      border-bottom: 1px solid var(--line);
+    }
+
+    .fest-showcase-track {
+      display: flex;
+      gap: 30px;
+      animation: scroll 30s linear infinite;
+      width: max-content;
+    }
+
+    .fest-showcase-track:hover {
+      animation-play-state: paused;
+    }
+
+    .fest-showcase-card {
+      flex-shrink: 0;
+      width: 320px;
+      background: var(--inbg);
+      border: 1px solid var(--inbd);
+      border-radius: 16px;
+      overflow: hidden;
+      transition: transform 0.3s, border-color 0.3s;
+    }
+
+    .fest-showcase-card:hover {
+      transform: translateY(-8px);
+      border-color: var(--cy);
+    }
+
+    .fest-showcase-card img {
+      width: 100%;
+      height: 180px;
+      object-fit: cover;
+    }
+
+    .fest-showcase-card-content {
+      padding: 20px;
+    }
+
+    .fest-showcase-card h3 {
+      font-size: 16px;
+      font-weight: 600;
+      margin: 0 0 8px;
+      color: var(--fg);
+    }
+
+    .fest-showcase-card p {
+      font-size: 13px;
+      color: var(--mut);
+      margin: 0;
+    }
+
+    @keyframes scroll {
+      0% {
+        transform: translateX(0);
+      }
+      100% {
+        transform: translateX(-50%);
+      }
+    }
+
+    @media (max-width: 768px) {
+      .fest-showcase-card {
+        width: 280px;
+      }
+
+      .fest-showcase-card img {
+        height: 160px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="scene" aria-hidden="true">
+    <div class="scene-glow"></div>
+    <div class="scene-wall"></div>
+  </div>
+
+  <!-- Navigation -->
+  <nav class="fixed top-0 left-0 right-0 z-50 bg-black/80 backdrop-blur-lg border-b border-white/10">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-16">
+        <a href="index.html" class="brand" aria-label="Home">
+          <img class="logo-dark" src="assets/images/logo.png" alt="DRMC IT Club logo">
+          <img class="logo-light" src="assets/images/logo-black.png" alt="" aria-hidden="true">
+        </a>
+        <div class="hidden md:flex items-center gap-6">
+          <a href="index.html" class="text-sm font-medium hover:text-teal-400 transition-colors">Fests</a>
+          <a href="dashboard.html" class="text-sm font-medium hover:text-teal-400 transition-colors">My Registrations</a>
+          <a href="admin.html" class="text-sm font-medium hover:text-teal-400 transition-colors">Admin</a>
+          <button id="theme-toggle" class="p-2 rounded-full hover:bg-white/10 transition-colors" aria-label="Toggle theme">
+            <svg id="theme-icon-dark" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/>
+            </svg>
+            <svg id="theme-icon-light" class="w-5 h-5 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Fest Showcase -->
+  <section class="fest-showcase fxs">
+    <div class="fest-showcase-track">
+      <div class="fest-showcase-card">
+        <img src="https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=800" alt="Tech Carnival">
+        <div class="fest-showcase-card-content">
+          <h3>9th DRMC International Tech Carnival 2026</h3>
+          <p>October 8-10, 2026</p>
+        </div>
+      </div>
+      <div class="fest-showcase-card">
+        <img src="https://images.unsplash.com/photo-1518770660439-4636190af475?w=800" alt="Winter Tech Fest">
+        <div class="fest-showcase-card-content">
+          <h3>Winter Tech Fest 2026</h3>
+          <p>December 15-17, 2026</p>
+        </div>
+      </div>
+      <div class="fest-showcase-card">
+        <img src="https://images.unsplash.com/photo-1531482615713-2afd69097998?w=800" alt="Freshers Tech Fest">
+        <div class="fest-showcase-card-content">
+          <h3>Freshers Tech Fest 2027</h3>
+          <p>January 20-22, 2027</p>
+        </div>
+      </div>
+      <!-- Duplicate for seamless loop -->
+      <div class="fest-showcase-card">
+        <img src="https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=800" alt="Tech Carnival">
+        <div class="fest-showcase-card-content">
+          <h3>9th DRMC International Tech Carnival 2026</h3>
+          <p>October 8-10, 2026</p>
+        </div>
+      </div>
+      <div class="fest-showcase-card">
+        <img src="https://images.unsplash.com/photo-1518770660439-4636190af475?w=800" alt="Winter Tech Fest">
+        <div class="fest-showcase-card-content">
+          <h3>Winter Tech Fest 2026</h3>
+          <p>December 15-17, 2026</p>
+        </div>
+      </div>
+      <div class="fest-showcase-card">
+        <img src="https://images.unsplash.com/photo-1531482615713-2afd69097998?w=800" alt="Freshers Tech Fest">
+        <div class="fest-showcase-card-content">
+          <h3>Freshers Tech Fest 2027</h3>
+          <p>January 20-22, 2027</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Fest Hero -->
+  <section class="pt-24 pb-12 px-4">
+    <div class="max-w-7xl mx-auto">
+      <div class="grid md:grid-cols-2 gap-8 items-center fxs">
+        <div>
+          <a href="index.html" class="text-sm text-gray-400 hover:text-teal-400 mb-4 inline-block">← Back to Fests</a>
+          <div id="fest-header">
+            <!-- Loaded dynamically -->
+          </div>
+        </div>
+        <div id="fest-image">
+          <!-- Loaded dynamically -->
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Search and Filter Events -->
+  <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div class="box fxr">
+      <div class="grid md:grid-cols-3 gap-4">
+        <div>
+          <label class="l">Search Events</label>
+          <input type="text" id="search-input" class="in" placeholder="Search events by name or description...">
+        </div>
+        <div>
+          <label class="l">Category</label>
+          <select id="category-filter" class="in">
+            <option value="">All Categories</option>
+            <option value="Programming">Programming</option>
+            <option value="Robotics">Robotics</option>
+            <option value="Gaming">Gaming</option>
+            <option value="Quiz">Quiz</option>
+            <option value="Workshop">Workshop</option>
+          </select>
+        </div>
+        <div>
+          <label class="l">Fee</label>
+          <select id="fee-filter" class="in">
+            <option value="">All Fees</option>
+            <option value="free">Free</option>
+            <option value="paid">Paid</option>
+          </select>
+        </div>
+      </div>
+      <div class="flex items-center gap-4 mt-4">
+        <div id="active-filters" class="flex gap-2 flex-wrap"></div>
+        <button id="clear-filters" class="text-xs" style="color: var(--cy); opacity: 0; transition: opacity 0.3s;">Clear all filters</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Events Grid -->
+  <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <h2 class="text-3xl font-bold mb-8 fxr">Events</h2>
+    <div id="events-grid" class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <!-- Events will be loaded here -->
+    </div>
+    <div id="no-results" class="hidden text-center py-12">
+      <p class="text-gray-400 text-lg">No events found matching your criteria.</p>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="border-t border-white/10 mt-20">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <div class="text-center text-sm text-gray-400">
+        <p>© 2026 DRMC IT Club. All rights reserved.</p>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // Mock data
+    const FESTS = {
+      "tech-carnival-2026": {
+        id: "tech-carnival-2026",
+        name: "9th DRMC International Tech Carnival 2026",
+        description: "Three days of programming, robotics, gaming, showcases, exhibitions, olympiads and quizzes. The biggest tech event in Bangladesh.",
+        startDate: "2026-10-08",
+        endDate: "2026-10-10",
+        venue: "Dhaka Residential Model College",
+        image: "https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=800",
+        status: "upcoming",
+        category: "Tech Festival",
+        organization: "DRMC IT Club"
+      },
+      "winter-tech-fest-2026": {
+        id: "winter-tech-fest-2026",
+        name: "Winter Tech Fest 2026",
+        description: "A winter celebration of technology featuring hackathons, workshops, and tech quizzes.",
+        startDate: "2026-12-15",
+        endDate: "2026-12-17",
+        venue: "Dhaka Residential Model College",
+        image: "https://images.unsplash.com/photo-1518770660439-4636190af475?w=800",
+        status: "upcoming",
+        category: "Tech Festival",
+        organization: "DRMC IT Club"
+      },
+      "freshers-tech-fest-2027": {
+        id: "freshers-tech-fest-2027",
+        name: "Freshers Tech Fest 2027",
+        description: "Welcome new students to the world of technology!",
+        startDate: "2027-01-20",
+        endDate: "2027-01-22",
+        venue: "Dhaka Residential Model College",
+        image: "https://images.unsplash.com/photo-1531482615713-2afd69097998?w=800",
+        status: "upcoming",
+        category: "Tech Festival",
+        organization: "DRMC IT Club"
+      }
+    };
+
+    const EVENTS = {
+      "ai-web-dev-2026": {
+        id: "ai-web-dev-2026",
+        festId: "tech-carnival-2026",
+        name: "AI Web Development Contest",
+        description: "Build an innovative AI-powered web application in 6 hours. Theme: Smart Club Operations.",
+        category: "Programming",
+        fee: 400,
+        prizes: [12000, 8000, 4000],
+        maxTeamSize: 3,
+        format: "Build an AI web app · 6 hrs",
+        day: "Day 1",
+        deadline: "2026-10-05T23:59:59",
+        capacity: 30,
+        registered: 15,
+        venue: "Computer Lab 1"
+      },
+      "programming-contest-2026": {
+        id: "programming-contest-2026",
+        festId: "tech-carnival-2026",
+        name: "Programming Contest",
+        description: "ICPC-style competitive programming contest. Solve algorithmic problems in 3 hours.",
+        category: "Programming",
+        fee: 500,
+        prizes: [15000, 10000, 5000],
+        maxTeamSize: 3,
+        format: "ICPC-style contest · 3 hrs",
+        day: "Day 3",
+        deadline: "2026-10-06T23:59:59",
+        capacity: 50,
+        registered: 25,
+        venue: "Computer Lab 2"
+      },
+      "robo-soccer-2026": {
+        id: "robo-soccer-2026",
+        festId: "tech-carnival-2026",
+        name: "Robo Soccer",
+        description: "Build and program soccer-playing robots. Compete in knockout arena matches.",
+        category: "Robotics",
+        fee: 600,
+        prizes: [20000, 12000, 6000],
+        maxTeamSize: 4,
+        format: "Knockout arena matches",
+        day: "Day 2",
+        deadline: "2026-10-05T23:59:59",
+        capacity: 20,
+        registered: 18,
+        venue: "Robotics Arena"
+      },
+      "valorant-cup-2026": {
+        id: "valorant-cup-2026",
+        festId: "tech-carnival-2026",
+        name: "Valorant Cup",
+        description: "5v5 Valorant tournament. Single elimination bracket with best-of-3 finals.",
+        category: "Gaming",
+        fee: 1000,
+        prizes: [25000, 15000, 7000],
+        maxTeamSize: 6,
+        format: "Single elimination · Bo3 finals",
+        day: "Day 1-3",
+        deadline: "2026-10-06T23:59:59",
+        capacity: 32,
+        registered: 28,
+        venue: "Gaming Zone"
+      },
+      "hackathon-2026": {
+        id: "hackathon-2026",
+        festId: "winter-tech-fest-2026",
+        name: "Winter Hackathon 2026",
+        description: "24-hour hackathon to solve real-world problems. Build innovative solutions with your team.",
+        category: "Programming",
+        fee: 300,
+        prizes: [20000, 15000, 10000],
+        maxTeamSize: 4,
+        format: "24-hour build",
+        day: "Day 1-2",
+        deadline: "2026-12-10T23:59:59",
+        capacity: 40,
+        registered: 20,
+        venue: "Innovation Hub"
+      },
+      "workshop-ai-2026": {
+        id: "workshop-ai-2026",
+        festId: "winter-tech-fest-2026",
+        name: "AI Workshop",
+        description: "Hands-on workshop on building AI applications. Learn about machine learning and neural networks.",
+        category: "Workshop",
+        fee: 100,
+        prizes: [],
+        maxTeamSize: 1,
+        format: "4-hour workshop",
+        day: "Day 2",
+        deadline: "2026-12-12T23:59:59",
+        capacity: 60,
+        registered: 35,
+        venue: "Seminar Hall"
+      },
+      "tech-quiz-2026": {
+        id: "tech-quiz-2026",
+        festId: "winter-tech-fest-2026",
+        name: "Tech Quiz",
+        description: "Test your tech knowledge in this exciting quiz competition.",
+        category: "Quiz",
+        fee: 150,
+        prizes: [5000, 3000, 2000],
+        maxTeamSize: 2,
+        format: "Written + buzzer rounds",
+        day: "Day 3",
+        deadline: "2026-12-13T23:59:59",
+        capacity: 50,
+        registered: 30,
+        venue: "Auditorium"
+      },
+      "coding-challenge-2027": {
+        id: "coding-challenge-2027",
+        festId: "freshers-tech-fest-2027",
+        name: "Freshers Coding Challenge",
+        description: "Beginner-friendly coding competition for new students.",
+        category: "Programming",
+        fee: 100,
+        prizes: [3000, 2000, 1000],
+        maxTeamSize: 1,
+        format: "2-hour contest",
+        day: "Day 1",
+        deadline: "2027-01-17T23:59:59",
+        capacity: 100,
+        registered: 45,
+        venue: "Computer Lab 1"
+      },
+      "ai-workshop-2027": {
+        id: "ai-workshop-2027",
+        festId: "freshers-tech-fest-2027",
+        name: "Introduction to AI Workshop",
+        description: "Learn the basics of Artificial Intelligence and Machine Learning.",
+        category: "Workshop",
+        fee: 50,
+        prizes: [],
+        maxTeamSize: 1,
+        format: "3-hour workshop",
+        day: "Day 2",
+        deadline: "2027-01-18T23:59:59",
+        capacity: 80,
+        registered: 40,
+        venue: "Seminar Hall"
+      }
+    };
+
+    // Get fest ID from URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const festId = urlParams.get('id');
+    let currentFest = null;
+
+    // Format date
+    function formatDate(dateStr) {
+      const date = new Date(dateStr);
+      return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    }
+
+    // Format currency
+    function formatCurrency(amount) {
+      return amount === 0 ? 'Free' : `BDT ${amount.toLocaleString()}`;
+    }
+
+    // Load fest details
+    function loadFest() {
+      currentFest = FESTS[festId];
+      
+      if (!currentFest) {
+        document.getElementById('fest-header').innerHTML = '<p class="text-red-400">Fest not found</p>';
+        return;
+      }
+
+      const festPage = {
+        "tech-carnival-2026": "tech-carnival-2026.html",
+        "winter-tech-fest-2026": "winter-tech-fest-2026.html",
+        "freshers-tech-fest-2027": "freshers-tech-fest-2027.html"
+      };
+
+      document.getElementById('fest-header').innerHTML = `
+        <a href="${festPage[currentFest.id]}" class="text-sm text-gray-400 hover:text-teal-400 mb-4 inline-block">← Back to Fest</a>
+        <div class="chip status-${currentFest.status} mb-4">${currentFest.status.charAt(0).toUpperCase() + currentFest.status.slice(1)}</div>
+        <h1 class="text-4xl font-bold mb-4">${currentFest.name}</h1>
+        <p class="text-gray-400 mb-6">${currentFest.description}</p>
+        <div class="space-y-2 text-sm text-gray-400">
+          <p><span class="text-white">📅</span> ${formatDate(currentFest.startDate)} - ${formatDate(currentFest.endDate)}</p>
+          <p><span class="text-white">📍</span> ${currentFest.venue}</p>
+          <p><span class="text-white">🏢</span> ${currentFest.organization}</p>
+        </div>
+      `;
+
+      document.getElementById('fest-image').innerHTML = `
+        <div class="aspect-video rounded-xl overflow-hidden">
+          <img src="${currentFest.image}" alt="${currentFest.name}" class="w-full h-full object-cover">
+        </div>
+      `;
+    }
+
+    // Render event card
+    function renderEventCard(event) {
+      const spotsLeft = event.capacity - event.registered;
+      const isFull = spotsLeft <= 0;
+      const isDeadlinePassed = new Date(event.deadline) < new Date();
+      const isBookmarked = isEventBookmarked(event.id);
+
+      return `
+        <div class="event-card box fxr relative" data-id="${event.id}">
+          <button class="bookmark-btn ${isBookmarked ? 'bookmarked' : ''}" onclick="event.stopPropagation(); toggleBookmark('${event.id}')">
+            <svg class="w-5 h-5" fill="${isBookmarked ? 'currentColor' : 'none'}" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"/>
+            </svg>
+          </button>
+          <div class="cursor-pointer" onclick="window.location.href='event.html?id=${event.id}'">
+            <div class="flex items-center gap-2 mb-3">
+              <span class="chip text-xs">${event.category}</span>
+              <span class="text-xs text-gray-400">${event.day}</span>
+            </div>
+            <h3 class="text-xl font-bold mb-2">${event.name}</h3>
+            <p class="text-sm text-gray-400 mb-4 line-clamp-2">${event.description}</p>
+            <div class="flex items-center justify-between text-sm mb-3">
+              <span class="font-semibold ${event.fee === 0 ? 'text-teal-400' : 'text-white'}">${formatCurrency(event.fee)}</span>
+              <span class="text-gray-400">${event.format}</span>
+            </div>
+            <div class="flex items-center justify-between text-xs text-gray-400">
+              <span>Team: ${event.maxTeamSize === 1 ? 'Solo' : `Up to ${event.maxTeamSize}`}</span>
+              <span class="${isFull ? 'text-red-400' : spotsLeft < 10 ? 'text-yellow-400' : 'text-teal-400'}">
+                ${isFull ? 'Full' : `${spotsLeft} spots left`}
+              </span>
+            </div>
+            ${isDeadlinePassed ? '<div class="mt-3 text-xs text-red-400">Registration closed</div>' : ''}
+          </div>
+        </div>
+      `;
+    }
+    
+    // Bookmark functions
+    function getBookmarks() {
+      return JSON.parse(localStorage.getItem('bookmarkedEvents') || '[]');
+    }
+    
+    function isEventBookmarked(eventId) {
+      return getBookmarks().includes(eventId);
+    }
+    
+    function toggleBookmark(eventId) {
+      const bookmarks = getBookmarks();
+      const index = bookmarks.indexOf(eventId);
+      
+      if (index > -1) {
+        bookmarks.splice(index, 1);
+      } else {
+        bookmarks.push(eventId);
+        // Trigger confetti
+        confetti({
+          particleCount: 30,
+          spread: 50,
+          origin: { y: 0.7 },
+          colors: ['#f59e0b', '#fbbf24']
+        });
+      }
+      
+      localStorage.setItem('bookmarkedEvents', JSON.stringify(bookmarks));
+      renderEvents(Object.values(EVENTS).filter(e => e.festId === festId));
+    }
+    
+    // Theme toggle
+    const themeToggle = document.getElementById('theme-toggle');
+    const themeIconDark = document.getElementById('theme-icon-dark');
+    const themeIconLight = document.getElementById('theme-icon-light');
+    
+    const savedTheme = localStorage.getItem('theme') || 'dark';
+    document.documentElement.setAttribute('data-theme', savedTheme);
+    updateThemeIcons(savedTheme);
+    
+    themeToggle.addEventListener('click', () => {
+      const currentTheme = document.documentElement.getAttribute('data-theme');
+      const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', newTheme);
+      localStorage.setItem('theme', newTheme);
+      updateThemeIcons(newTheme);
+    });
+    
+    function updateThemeIcons(theme) {
+      if (theme === 'dark') {
+        themeIconDark.classList.remove('hidden');
+        themeIconLight.classList.add('hidden');
+      } else {
+        themeIconDark.classList.add('hidden');
+        themeIconLight.classList.remove('hidden');
+      }
+    }
+
+    // Render events
+    function renderEvents(events) {
+      const grid = document.getElementById('events-grid');
+      const noResults = document.getElementById('no-results');
+      
+      if (events.length === 0) {
+        grid.innerHTML = '';
+        noResults.classList.remove('hidden');
+        return;
+      }
+      
+      noResults.classList.add('hidden');
+      grid.innerHTML = events.map(event => renderEventCard(event)).join('');
+    }
+
+    // Filter events
+    function filterEvents() {
+      const search = document.getElementById('search-input').value.toLowerCase();
+      const category = document.getElementById('category-filter').value;
+      const feeFilter = document.getElementById('fee-filter').value;
+      
+      const filtered = Object.values(EVENTS).filter(event => {
+        if (event.festId !== festId) return false;
+        
+        const matchesSearch = event.name.toLowerCase().includes(search) || 
+                             event.description.toLowerCase().includes(search);
+        const matchesCategory = !category || event.category === category;
+        const matchesFee = !feeFilter || 
+                          (feeFilter === 'free' && event.fee === 0) ||
+                          (feeFilter === 'paid' && event.fee > 0);
+        
+        return matchesSearch && matchesCategory && matchesFee;
+      });
+      
+      renderEvents(filtered);
+      updateActiveFilters(search, category, feeFilter);
+    }
+
+    // Update active filters display
+    function updateActiveFilters(search, category, feeFilter) {
+      const container = document.getElementById('active-filters');
+      const clearBtn = document.getElementById('clear-filters');
+      const filters = [];
+      
+      if (search) filters.push({ type: 'search', value: search, label: `Search: "${search}"` });
+      if (category) filters.push({ type: 'category', value: category, label: category });
+      if (feeFilter) filters.push({ type: 'fee', value: feeFilter, label: feeFilter === 'free' ? 'Free' : 'Paid' });
+      
+      if (filters.length > 0) {
+        container.innerHTML = filters.map(f => `
+          <span class="chip text-xs" style="border-color: var(--cy); color: var(--cy)">
+            ${f.label}
+            <button onclick="removeFilter('${f.type}', '${f.value}')" style="background:none;border:none;color:inherit;cursor:pointer;margin-left:4px;font-size:14px">×</button>
+          </span>
+        `).join('');
+        clearBtn.style.opacity = '1';
+        clearBtn.style.cursor = 'pointer';
+      } else {
+        container.innerHTML = '';
+        clearBtn.style.opacity = '0';
+        clearBtn.style.cursor = 'default';
+      }
+    }
+
+    // Remove individual filter
+    function removeFilter(type, value) {
+      if (type === 'search') {
+        document.getElementById('search-input').value = '';
+      } else if (type === 'category') {
+        document.getElementById('category-filter').value = '';
+      } else if (type === 'fee') {
+        document.getElementById('fee-filter').value = '';
+      }
+      filterEvents();
+    }
+
+    // Clear all filters
+    function clearAllFilters() {
+      document.getElementById('search-input').value = '';
+      document.getElementById('category-filter').value = '';
+      document.getElementById('fee-filter').value = '';
+      filterEvents();
+    }
+
+    // Event listeners
+    document.getElementById('search-input').addEventListener('input', filterEvents);
+    document.getElementById('category-filter').addEventListener('change', filterEvents);
+    document.getElementById('fee-filter').addEventListener('change', filterEvents);
+    document.getElementById('clear-filters').addEventListener('click', clearAllFilters);
+
+    // Initialize
+    loadFest();
+    filterEvents();
+
+    // Scroll animations
+    const observerOptions = {
+      threshold: 0.1,
+      rootMargin: '0px 0px -50px 0px'
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('fxs');
+        }
+      });
+    }, observerOptions);
+
+    document.querySelectorAll('.fxr').forEach(el => observer.observe(el));
+  </script>
+</body>
+</html>

@@ -1,0 +1,53 @@
+{
+  "name": "drmc-tech-carnival-2026",
+  "version": "1.0.0",
+  "description": "9th DRMC International Tech Carnival 2026 - Event Registration Platform",
+  "private": true,
+  "author": "DRMC IT Club",
+  "license": "MIT",
+  "scripts": {
+    "dev": "serve public -p 3000",
+    "build": "echo 'No build step required for static HTML'",
+    "serve": "serve public -p 3000",
+    "deploy:firebase": "cd backend && firebase deploy",
+    "deploy:hosting": "cd backend && firebase deploy --only hosting",
+    "deploy:functions": "cd backend && firebase deploy --only functions",
+    "deploy:firestore": "cd backend && firebase deploy --only firestore",
+    "lint": "eslint . --ext .js",
+    "lint:fix": "eslint . --ext .js --fix",
+    "format": "prettier --write \"**/*.{js,json,md,html}\"",
+    "format:check": "prettier --check \"**/*.{js,json,md,html}\"",
+    "test": "echo 'Tests not configured'",
+    "emulator": "cd backend && firebase emulators:start",
+    "import:data": "cd backend && node setup-data.js",
+    "clean": "rm -rf node_modules backend/node_modules backend/.firebase",
+    "install:all": "npm install && cd backend && npm install"
+  },
+  "devDependencies": {
+    "eslint": "^8.55.0",
+    "prettier": "^3.1.1",
+    "serve": "^14.2.1"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=9.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/drmc-itclub/tech-carnival-2026.git"
+  },
+  "keywords": [
+    "event",
+    "registration",
+    "tech-carnival",
+    "drmc",
+    "firebase"
+  ],
+  "bugs": {
+    "url": "https://github.com/drmc-itclub/tech-carnival-2026/issues"
+  },
+  "homepage": "https://github.com/drmc-itclub/tech-carnival-2026#readme",
+  "dependencies": {
+    "firebase-admin": "^14.5.0"
+  }
+}

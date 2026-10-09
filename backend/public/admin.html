@@ -1,0 +1,756 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Admin Panel - Manage fests, events, and registrations">
+  <meta name="theme-color" content="#1de9b6">
+  <title>Admin Panel - DRMC IT Club</title>
+  <link rel="icon" type="image/png" href="assets/images/logo.png">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #000;
+      --fg: #fff;
+      --mut: #9a9a9a;
+      --card: rgba(16, 22, 20, 0.8);
+      --line: rgba(255,255,255,0.09);
+      --cy: #1de9b6;
+      --bl: #0c8f6d;
+      --nav: rgba(0,0,0,0.8);
+      --tbi: #d8d8d8;
+      --hv: rgba(255,255,255,0.09);
+      --inbg: rgba(11, 16, 14, 0.6);
+      --inbd: rgba(255,255,255,0.14);
+      --g1: #2ef2c0;
+      --g2: #17c9a0;
+      --g3: #0fa57f;
+      color-scheme: dark;
+      transition: background 0.3s ease, color 0.3s ease;
+    }
+    
+    html[data-theme="light"] {
+      --bg: #f8fafc;
+      --fg: #0f172a;
+      --mut: #64748b;
+      --card: rgba(255, 255, 255, 0.8);
+      --line: rgba(0,0,0,0.1);
+      --cy: #0d9488;
+      --bl: #0f766e;
+      --nav: rgba(255,255,255,0.9);
+      --tbi: #334155;
+      --hv: rgba(0,0,0,0.05);
+      --inbg: rgba(255,255,255,0.8);
+      --inbd: rgba(0,0,0,0.2);
+      --g1: #14b8a6;
+      --g2: #0d9488;
+      --g3: #0f766e;
+      color-scheme: light;
+    }
+    
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--fg);
+      font-family: 'Inter Tight', system-ui, -apple-system, sans-serif;
+      overflow-x: hidden;
+      isolation: isolate;
+    }
+    
+    .btn {
+      display: inline-block;
+      background: linear-gradient(90deg, #1de9b6, #0fa57f);
+      box-shadow: 0 0 26px rgba(29,233,182,0.4);
+      border-radius: 999px;
+      padding: 0.8em 2em;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: #02140f;
+      border: 0;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    
+    .btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 0 42px rgba(29,233,182,0.75);
+    }
+    
+    .btn.ghost {
+      background: var(--hv);
+      box-shadow: none;
+      color: var(--fg);
+      border: 1px solid rgba(29,233,182,0.35);
+    }
+    
+    .btn.danger {
+      background: linear-gradient(90deg, #ef4444, #dc2626);
+      box-shadow: 0 0 26px rgba(239,68,68,0.4);
+      color: white;
+    }
+    
+    .grad {
+      background: linear-gradient(90deg, var(--g1), var(--g2) 55%, var(--g3));
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+    
+    .box {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 24px;
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    }
+    
+    html[data-theme="light"] .box {
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.05);
+    }
+    
+    .in {
+      width: 100%;
+      background: var(--inbg);
+      border: 1px solid var(--inbd);
+      border-radius: 10px;
+      padding: 0.8em 1em;
+      color: var(--fg);
+      font: inherit;
+      font-size: 14px;
+    }
+    
+    .in:focus {
+      outline: 2px solid var(--bl);
+      border-color: transparent;
+    }
+    
+    .sidebar-link {
+      transition: all 0.2s;
+    }
+
+    .sidebar-link:hover {
+      background: var(--hv);
+    }
+
+    tbody tr:hover {
+      background: var(--hv);
+    }
+    
+    .sidebar-link.active {
+      background: linear-gradient(90deg, #1de9b6, #0fa57f);
+      color: #02140f;
+    }
+    
+    .status-pending {
+      background: rgba(255,200,60,0.15);
+      color: #f5b82e;
+      border: 1px solid rgba(255,200,60,0.3);
+    }
+    
+    .status-confirmed {
+      background: rgba(29,233,182,0.15);
+      color: var(--cy);
+      border: 1px solid rgba(29,233,182,0.3);
+    }
+    
+    .status-rejected {
+      background: rgba(239,68,68,0.15);
+      color: #ef4444;
+      border: 1px solid rgba(239,68,68,0.3);
+    }
+    
+    .chip {
+      display: inline-flex;
+      gap: 8px;
+      align-items: center;
+      padding: 0.6em 1em;
+      border: 1px solid var(--inbd);
+      border-radius: 999px;
+      font-size: 13px;
+    }
+    
+    .scene {
+      position: fixed;
+      inset: 0;
+      z-index: -1;
+      pointer-events: none;
+      overflow: hidden;
+    }
+    
+    .scene-glow {
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(70% 45% at 50% 0%, rgba(29,233,182,0.22), transparent 58%),
+                  radial-gradient(50% 40% at 86% 78%, rgba(15,165,127,0.2), transparent 62%),
+                  radial-gradient(42% 32% at 12% 72%, rgba(29,233,182,0.1), transparent 55%),
+                  #020806;
+    }
+
+    html[data-theme="light"] .scene-glow {
+      background: radial-gradient(70% 45% at 50% 0%, rgba(29,233,182,0.28), transparent 60%),
+                  radial-gradient(45% 40% at 92% 30%, rgba(110,200,255,0.22), transparent 65%),
+                  radial-gradient(50% 45% at 8% 85%, rgba(46,242,192,0.22), transparent 65%),
+                  radial-gradient(40% 35% at 70% 95%, rgba(180,240,140,0.2), transparent 65%),
+                  linear-gradient(160deg, #ecfff7 0%, #f5fbff 45%, #effff4 100%);
+    }
+    
+    .brand .logo-light {
+      display: none;
+    }
+    
+    html[data-theme="light"] .brand .logo-dark {
+      display: none;
+    }
+    
+    html[data-theme="light"] .brand .logo-light {
+      display: block;
+    }
+    
+    .brand {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 48px;
+      padding: 0;
+      border: 0;
+      background: none;
+    }
+
+    .brand.justify-center {
+      justify-content: center;
+    }
+
+    .brand img {
+      margin-bottom: 16px;
+    }
+    
+    .brand img {
+      height: 56px;
+      width: auto;
+      max-width: none;
+      object-fit: contain;
+      display: block;
+    }
+      .chart-wrap { position: relative; height: 280px; width: 100%; }
+    @media (max-width: 640px) { .chart-wrap { height: 240px; } }
+  </style>
+</head>
+<body>
+  <div class="scene" aria-hidden="true">
+    <div class="scene-glow"></div>
+  </div>
+
+  <!-- Login Screen -->
+  <div id="login-screen" class="min-h-screen flex items-center justify-center p-4">
+    <div class="box w-full max-w-md">
+      <div class="brand mb-6 justify-center">
+        <img class="logo-dark" src="assets/images/logo.png" alt="DRMC IT Club" style="height: 80px">
+        <img class="logo-light" src="assets/images/logo-black.png" alt="" aria-hidden="true" style="height: 80px">
+      </div>
+      <h1 class="text-2xl font-bold mb-6 text-center grad">Admin Login</h1>
+      <form id="login-form">
+        <div class="mb-4">
+          <label class="block text-sm font-medium mb-2" style="color: var(--mut);">Email</label>
+          <input type="email" id="login-email" class="in" placeholder="admin@drmcitclub.com" required>
+        </div>
+        <div class="mb-6">
+          <label class="block text-sm font-medium mb-2" style="color: var(--mut);">Password</label>
+          <input type="password" id="login-password" class="in" placeholder="Enter password" required>
+        </div>
+        <button type="submit" class="btn w-full">Login</button>
+      </form>
+      <p id="login-error" class="text-sm mt-4 text-center hidden" style="color: #ef4444;"></p>
+      <p class="text-xs text-center mt-4" style="color: var(--mut);">Demo: admin@drmcitclub.com / admin123</p>
+    </div>
+  </div>
+
+  <!-- Admin Dashboard -->
+  <div id="dashboard" class="hidden">
+    <!-- Sidebar -->
+    <aside class="fixed left-0 top-0 h-full w-56 backdrop-blur-lg border-r p-3 z-50" style="background: var(--nav); border-color: var(--line);">
+      <div class="mb-8">
+        <div class="brand mb-4">
+          <img class="logo-dark" src="assets/images/logo.png" alt="DRMC IT Club" style="height: 48px">
+          <img class="logo-light" src="assets/images/logo-black.png" alt="" aria-hidden="true" style="height: 48px">
+        </div>
+        <h2 class="text-xl font-bold grad">Admin Panel</h2>
+        <p class="text-sm mt-1" style="color: var(--mut);">DRMC IT Club</p>
+        <button id="theme-toggle" class="mt-4 p-2 rounded-lg transition-colors w-full flex items-center justify-center gap-2" style="background: var(--hv);" aria-label="Toggle theme">
+          <svg id="theme-icon-dark" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/>
+          </svg>
+          <svg id="theme-icon-light" class="w-5 h-5 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/>
+          </svg>
+          <span class="text-sm">Toggle Theme</span>
+        </button>
+      </div>
+      <nav class="space-y-2">
+        <a href="#" class="sidebar-link active block px-4 py-3 rounded-lg" data-tab="overview">Overview</a>
+        <a href="#" class="sidebar-link block px-4 py-3 rounded-lg" data-tab="participants">Participants</a>
+        <a href="#" class="sidebar-link block px-4 py-3 rounded-lg" data-tab="events">Events</a>
+        <a href="#" class="sidebar-link block px-4 py-3 rounded-lg" data-tab="fests">Fests</a>
+      </nav>
+      <div class="absolute bottom-4 left-4 right-4">
+        <button id="logout-btn" class="btn ghost w-full">Logout</button>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="ml-56 p-8">
+      <!-- Overview Tab -->
+      <div id="tab-overview" class="tab-content">
+        <h1 class="text-2xl font-bold mb-6">Dashboard Overview</h1>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+          <div class="box p-4">
+            <p class="text-xs uppercase tracking-wider" style="color: var(--mut)">Total Fests</p>
+            <p class="text-2xl font-bold mt-1" id="total-fests">0</p>
+          </div>
+          <div class="box p-4">
+            <p class="text-xs uppercase tracking-wider" style="color: var(--mut)">Total Events</p>
+            <p class="text-2xl font-bold mt-1" id="total-events">0</p>
+          </div>
+          <div class="box p-4">
+            <p class="text-xs uppercase tracking-wider" style="color: var(--mut)">Registrations</p>
+            <p class="text-2xl font-bold mt-1" id="total-registrations">0</p>
+          </div>
+          <div class="box p-4">
+            <p class="text-xs uppercase tracking-wider" style="color: var(--mut)">Revenue</p>
+            <p class="text-2xl font-bold mt-1" id="total-revenue">BDT 0</p>
+          </div>
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div class="box p-4">
+            <h3 class="text-sm font-semibold mb-3">Registrations by Event</h3>
+            <div class="chart-wrap"><canvas id="eventChart"></canvas></div>
+          </div>
+          <div class="box p-4">
+            <h3 class="text-sm font-semibold mb-3">Registration Status</h3>
+            <div class="chart-wrap"><canvas id="statusChart"></canvas></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Participants Tab -->
+      <div id="tab-participants" class="tab-content hidden">
+        <div class="flex justify-between items-center mb-8">
+          <h1 class="text-3xl font-bold">Participants</h1>
+          <div class="flex gap-4">
+            <input type="text" id="search-participants" class="in" placeholder="Search by name, email..." style="width: 250px;">
+            <select id="filter-status" class="in" style="width: 150px;">
+              <option value="">All Status</option>
+              <option value="pending">Pending</option>
+              <option value="confirmed">Confirmed</option>
+              <option value="rejected">Rejected</option>
+            </select>
+            <button id="export-csv" class="btn ghost">Export CSV</button>
+          </div>
+        </div>
+        <div class="box overflow-hidden">
+          <table class="w-full">
+            <thead class="border-b" style="border-color: var(--line);">
+              <tr>
+                <th class="px-6 py-3 text-left text-sm font-semibold">Reg ID</th>
+                <th class="px-6 py-3 text-left text-sm font-semibold">Name</th>
+                <th class="px-6 py-3 text-left text-sm font-semibold">Email</th>
+                <th class="px-6 py-3 text-left text-sm font-semibold">Event</th>
+                <th class="px-6 py-3 text-left text-sm font-semibold">Fee</th>
+                <th class="px-6 py-3 text-left text-sm font-semibold">Status</th>
+                <th class="px-6 py-3 text-left text-sm font-semibold">Project</th>
+                <th class="px-6 py-3 text-left text-sm font-semibold">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="participants-table" class="divide-y" style="border-color: var(--line);"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Events Tab -->
+      <div id="tab-events" class="tab-content hidden">
+        <div class="flex justify-between items-center mb-8">
+          <h1 class="text-3xl font-bold">Manage Events</h1>
+          <button class="btn">Create Event</button>
+        </div>
+        <div class="box overflow-hidden">
+          <table class="w-full">
+            <thead class="border-b" style="border-color: var(--line);">
+              <tr>
+                <th class="px-6 py-3 text-left text-sm font-semibold">Event</th>
+                <th class="px-6 py-3 text-left text-sm font-semibold">Fest</th>
+                <th class="px-6 py-3 text-left text-sm font-semibold">Category</th>
+                <th class="px-6 py-3 text-left text-sm font-semibold">Fee</th>
+                <th class="px-6 py-3 text-left text-sm font-semibold">Capacity</th>
+                <th class="px-6 py-3 text-left text-sm font-semibold">Registered</th>
+                <th class="px-6 py-3 text-left text-sm font-semibold">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="events-table" class="divide-y" style="border-color: var(--line);"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Fests Tab -->
+      <div id="tab-fests" class="tab-content hidden">
+        <div class="flex justify-between items-center mb-8">
+          <h1 class="text-3xl font-bold">Manage Fests</h1>
+          <button class="btn">Create Fest</button>
+        </div>
+        <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6" id="fests-grid"></div>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    // Mock data
+    const MOCK_PARTICIPANTS = [
+      { regId: 'DRMC26-ABC123', name: 'John Doe', email: 'john@example.com', eventId: 'ai-web-dev-2026', fee: 400, status: 'pending', registeredAt: '2026-10-01' },
+      { regId: 'DRMC26-DEF456', name: 'Jane Smith', email: 'jane@example.com', eventId: 'programming-contest-2026', fee: 500, status: 'confirmed', registeredAt: '2026-10-02' },
+      { regId: 'DRMC26-GHI789', name: 'Bob Johnson', email: 'bob@example.com', eventId: 'ai-web-dev-2026', fee: 400, status: 'confirmed', registeredAt: '2026-10-03', project: { name: 'AI Assistant', fileUrl: '#', fileName: 'project.zip' } },
+      { regId: 'DRMC26-JKL012', name: 'Alice Williams', email: 'alice@example.com', eventId: 'robo-soccer-2026', fee: 600, status: 'pending', registeredAt: '2026-10-04' },
+      { regId: 'DRMC26-MNO345', name: 'Charlie Brown', email: 'charlie@example.com', eventId: 'valorant-cup-2026', fee: 1000, status: 'rejected', registeredAt: '2026-10-05' }
+    ];
+
+    const EVENTS = {
+      "ai-web-dev-2026": { id: "ai-web-dev-2026", name: "AI Web Development Contest", festId: "tech-carnival-2026", category: "Programming", fee: 400, capacity: 30, registered: 15, isOnline: true },
+      "programming-contest-2026": { id: "programming-contest-2026", name: "Programming Contest", festId: "tech-carnival-2026", category: "Programming", fee: 500, capacity: 50, registered: 25, isOnline: false },
+      "robo-soccer-2026": { id: "robo-soccer-2026", name: "Robo Soccer", festId: "tech-carnival-2026", category: "Robotics", fee: 600, capacity: 20, registered: 18, isOnline: false },
+      "valorant-cup-2026": { id: "valorant-cup-2026", name: "Valorant Cup", festId: "tech-carnival-2026", category: "Gaming", fee: 1000, capacity: 32, registered: 28, isOnline: false }
+    };
+
+    const FESTS = {
+      "tech-carnival-2026": { id: "tech-carnival-2026", name: "9th DRMC International Tech Carnival 2026", status: "upcoming", startDate: "2026-10-08" },
+      "winter-tech-fest-2026": { id: "winter-tech-fest-2026", name: "Winter Tech Fest 2026", status: "upcoming", startDate: "2026-12-15" },
+      "freshers-tech-fest-2027": { id: "freshers-tech-fest-2027", name: "Freshers Tech Fest 2027", status: "upcoming", startDate: "2027-01-20" }
+    };
+
+    // Tab navigation
+    document.querySelectorAll('.sidebar-link').forEach(link => {
+      link.addEventListener('click', function(e) {
+        e.preventDefault();
+        const tab = this.dataset.tab;
+        
+        document.querySelectorAll('.sidebar-link').forEach(l => l.classList.remove('active'));
+        this.classList.add('active');
+        
+        document.querySelectorAll('.tab-content').forEach(t => t.classList.add('hidden'));
+        document.getElementById(`tab-${tab}`).classList.remove('hidden');
+        
+        if (tab === 'participants') loadParticipants();
+        if (tab === 'events') loadEvents();
+        if (tab === 'fests') loadFests();
+      });
+    });
+
+    // Load dashboard
+    let eventChartInst = null, statusChartInst = null;
+    function loadDashboard() {
+      if (eventChartInst) eventChartInst.destroy();
+      if (statusChartInst) statusChartInst.destroy();
+      document.getElementById('total-fests').textContent = Object.keys(FESTS).length;
+      document.getElementById('total-events').textContent = Object.keys(EVENTS).length;
+      document.getElementById('total-registrations').textContent = MOCK_PARTICIPANTS.length;
+      
+      const revenue = MOCK_PARTICIPANTS.reduce((sum, p) => sum + (p.status === 'confirmed' ? p.fee : 0), 0);
+      document.getElementById('total-revenue').textContent = `BDT ${revenue.toLocaleString()}`;
+      
+      // Registrations by event chart
+      const eventRegCounts = {};
+      MOCK_PARTICIPANTS.forEach(p => {
+        eventRegCounts[p.eventId] = (eventRegCounts[p.eventId] || 0) + 1;
+      });
+      
+      const eventLabels = Object.keys(eventRegCounts).map(id => EVENTS[id]?.name || id);
+      const eventData = Object.values(eventRegCounts);
+      
+      if (typeof Chart === 'undefined') return;
+      const isLight = document.documentElement.getAttribute('data-theme') === 'light';
+      const chartColor = isLight ? '#0d9488' : '#1de9b6';
+      const chartBg = isLight ? 'rgba(13, 148, 136, 0.5)' : 'rgba(29, 233, 182, 0.5)';
+      const tickColor = isLight ? '#64748b' : '#9a9a9a';
+
+      eventChartInst = new Chart(document.getElementById('eventChart'), {
+        type: 'bar',
+        data: {
+          labels: eventLabels,
+          datasets: [{
+            label: 'Registrations',
+            data: eventData,
+            backgroundColor: chartBg,
+            borderColor: chartColor,
+            borderWidth: 1
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false }
+          },
+          scales: {
+            y: { beginAtZero: true, ticks: { color: tickColor } },
+            x: { ticks: { color: tickColor } }
+          }
+        }
+      });
+      
+      // Registration status chart
+      const statusCounts = { pending: 0, confirmed: 0, rejected: 0 };
+      MOCK_PARTICIPANTS.forEach(p => {
+        statusCounts[p.status]++;
+      });
+      
+      const confirmedColor = isLight ? '#0d9488' : '#1de9b6';
+
+      statusChartInst = new Chart(document.getElementById('statusChart'), {
+        type: 'doughnut',
+        data: {
+          labels: ['Pending', 'Confirmed', 'Rejected'],
+          datasets: [{
+            data: [statusCounts.pending, statusCounts.confirmed, statusCounts.rejected],
+            backgroundColor: ['#f5b82e', confirmedColor, '#ef4444'],
+            borderWidth: 0
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          cutout: '65%',
+          plugins: {
+            legend: { position: 'bottom', labels: { color: tickColor } }
+          }
+        }
+      });
+    }
+
+    // Load participants
+    function loadParticipants() {
+      const search = document.getElementById('search-participants').value.toLowerCase();
+      const statusFilter = document.getElementById('filter-status').value;
+      
+      const filtered = MOCK_PARTICIPANTS.filter(p => {
+        const matchesSearch = p.name.toLowerCase().includes(search) || p.email.toLowerCase().includes(search);
+        const matchesStatus = !statusFilter || p.status === statusFilter;
+        return matchesSearch && matchesStatus;
+      });
+      
+      document.getElementById('participants-table').innerHTML = filtered.map(p => {
+        const event = EVENTS[p.eventId];
+        const statusClass = `status-${p.status}`;
+        return `
+          <tr style="transition: background 0.2s;">
+            <td class="px-6 py-4 text-sm font-mono">${p.regId}</td>
+            <td class="px-6 py-4 text-sm">${p.name}</td>
+            <td class="px-6 py-4 text-sm">${p.email}</td>
+            <td class="px-6 py-4 text-sm">${event?.name || p.eventId}</td>
+            <td class="px-6 py-4 text-sm">BDT ${p.fee.toLocaleString()}</td>
+            <td class="px-6 py-4 text-sm">
+              <span class="chip text-xs ${statusClass}">${p.status}</span>
+            </td>
+            <td class="px-6 py-4 text-sm">
+              ${p.project ? `
+                <a href="${p.project.fileUrl}" target="_blank" style="color: var(--cy);" class="hover:opacity-80">
+                  📄 ${p.project.name}
+                </a>
+              ` : '<span style="color: var(--mut);">No project</span>'}
+            </td>
+            <td class="px-6 py-4 text-sm">
+              ${p.status === 'pending' ? `
+                <button onclick="updateStatus('${p.regId}', 'confirmed')" style="color: var(--cy); transition: color 0.2s;" class="mr-2 hover:opacity-80">Confirm</button>
+                <button onclick="updateStatus('${p.regId}', 'rejected')" style="color: #ef4444; transition: color 0.2s;" class="hover:opacity-80">Reject</button>
+              ` : ''}
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    // Update registration status
+    function updateStatus(regId, newStatus) {
+      const participant = MOCK_PARTICIPANTS.find(p => p.regId === regId);
+      if (participant) {
+        participant.status = newStatus;
+        loadParticipants();
+        loadDashboard();
+      }
+    }
+
+    // Load events
+    function loadEvents() {
+      document.getElementById('events-table').innerHTML = Object.values(EVENTS).map(event => {
+        const fest = FESTS[event.festId];
+        const spotsLeft = event.capacity - event.registered;
+        const spotsColor = spotsLeft <= 0 ? '#ef4444' : spotsLeft < 10 ? '#f5b82e' : 'var(--cy)';
+        return `
+          <tr style="transition: background 0.2s;">
+            <td class="px-4 py-3 text-sm font-semibold">${event.name}</td>
+            <td class="px-4 py-3 text-sm">${fest?.name || event.festId}</td>
+            <td class="px-4 py-3 text-sm">${event.category}</td>
+            <td class="px-4 py-3 text-sm">${event.fee === 0 ? 'Free' : `BDT ${event.fee.toLocaleString()}`}</td>
+            <td class="px-4 py-3 text-sm">${event.capacity}</td>
+            <td class="px-4 py-3 text-sm" style="color: ${spotsColor};">${spotsLeft}</td>
+            <td class="px-4 py-3 text-sm">
+              <button onclick="editEvent('${event.id}')" style="color: var(--cy);">Edit</button>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    // Edit event
+    function editEvent(eventId) {
+      const event = EVENTS[eventId];
+      if (!event) return;
+      
+      const newName = prompt('Event Name:', event.name);
+      if (newName && newName !== event.name) {
+        event.name = newName;
+        loadEvents();
+        alert('Event updated successfully!');
+      }
+    }
+
+    // Load fests
+    function loadFests() {
+      document.getElementById('fests-grid').innerHTML = Object.values(FESTS).map(fest => `
+        <div class="box p-4">
+          <div class="chip status-${fest.status} mb-2 text-xs">${fest.status}</div>
+          <h3 class="text-lg font-bold mb-1">${fest.name}</h3>
+          <p class="text-xs mb-3" style="color: var(--mut);">Starts: ${fest.startDate}</p>
+          <div class="flex gap-2">
+            <button onclick="editFest('${fest.id}')" class="btn ghost text-xs py-1.5">Edit</button>
+            <button onclick="viewFestEvents('${fest.id}')" class="btn ghost text-xs py-1.5">View Events</button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // Edit fest
+    function editFest(festId) {
+      const fest = FESTS[festId];
+      if (!fest) return;
+      
+      const newName = prompt('Fest Name:', fest.name);
+      if (newName && newName !== fest.name) {
+        fest.name = newName;
+        loadFests();
+        alert('Fest updated successfully!');
+      }
+    }
+
+    // View fest events
+    function viewFestEvents(festId) {
+      const fest = FESTS[festId];
+      const festEvents = Object.values(EVENTS).filter(e => e.festId === festId);
+      
+      alert(`Events in ${fest.name}:\n\n${festEvents.map(e => `- ${e.name} (${e.category})`).join('\n')}`);
+    }
+
+    // Search and filter listeners
+    document.getElementById('search-participants').addEventListener('input', loadParticipants);
+    document.getElementById('filter-status').addEventListener('change', loadParticipants);
+
+    // Export CSV
+    document.getElementById('export-csv').addEventListener('click', function() {
+      const headers = ['Reg ID', 'Name', 'Email', 'Event', 'Fee', 'Status', 'Registered At'];
+      const rows = MOCK_PARTICIPANTS.map(p => {
+        const event = EVENTS[p.eventId];
+        return [p.regId, p.name, p.email, event?.name || p.eventId, p.fee, p.status, p.registeredAt].join(',');
+      });
+      
+      const csv = [headers.join(','), ...rows].join('\n');
+      const blob = new Blob([csv], { type: 'text/csv' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'participants.csv';
+      a.click();
+    });
+
+    // Theme toggle
+    const themeToggle = document.getElementById('theme-toggle');
+    const themeIconDark = document.getElementById('theme-icon-dark');
+    const themeIconLight = document.getElementById('theme-icon-light');
+
+    const savedTheme = localStorage.getItem('theme') || 'dark';
+    document.documentElement.setAttribute('data-theme', savedTheme);
+    updateThemeIcons(savedTheme);
+
+    themeToggle.addEventListener('click', () => {
+      const currentTheme = document.documentElement.getAttribute('data-theme');
+      const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', newTheme);
+      localStorage.setItem('theme', newTheme);
+      updateThemeIcons(newTheme);
+      // Reload dashboard to update charts
+      if (!document.getElementById('dashboard').classList.contains('hidden')) {
+        loadDashboard();
+      }
+    });
+
+    function updateThemeIcons(theme) {
+      if (theme === 'dark') {
+        themeIconDark.classList.remove('hidden');
+        themeIconLight.classList.add('hidden');
+      } else {
+        themeIconDark.classList.add('hidden');
+        themeIconLight.classList.remove('hidden');
+      }
+    }
+
+    // Initialize
+    console.log('Admin panel initialized');
+  </script>
+
+  <script>
+    (function () {
+      var KEY = 'admin_session';
+      var loginScreen = document.getElementById('login-screen');
+      var dash = document.getElementById('dashboard');
+      var err = document.getElementById('login-error');
+
+      function showDash() {
+        loginScreen.classList.add('hidden');
+        dash.classList.remove('hidden');
+        err.classList.add('hidden');
+        loadDashboard();
+      }
+      function showLogin() {
+        dash.classList.add('hidden');
+        loginScreen.classList.remove('hidden');
+        document.getElementById('login-email').value = '';
+        document.getElementById('login-password').value = '';
+      }
+
+      document.getElementById('login-form').addEventListener('submit', function (e) {
+        e.preventDefault();
+        var email = document.getElementById('login-email').value.trim();
+        var password = document.getElementById('login-password').value;
+        if (email === 'admin@drmcitclub.com' && password === 'admin123') {
+          try { sessionStorage.setItem(KEY, '1'); } catch (x) {}
+          showDash();
+        } else {
+          err.textContent = 'Invalid credentials';
+          err.classList.remove('hidden');
+        }
+      });
+
+      document.getElementById('logout-btn').addEventListener('click', function () {
+        try { sessionStorage.removeItem(KEY); } catch (x) {}
+        showLogin();
+      });
+
+      // Stay signed in on reload within the same tab session
+      var ok = false;
+      try { ok = sessionStorage.getItem(KEY) === '1'; } catch (x) {}
+      if (ok) showDash();
+    })();
+  </script>
+</body>
+</html>

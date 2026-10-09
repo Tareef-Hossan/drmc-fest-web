@@ -1,0 +1,1311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="DRMC IT Club - Smart Club Operations Platform. Browse fests, explore events, and register online.">
+  <meta name="keywords" content="DRMC, Tech Carnival, Event Registration, Fest, Club Management">
+  <meta name="author" content="DRMC IT Club">
+  <meta name="theme-color" content="#1de9b6">
+  <title>DRMC IT Club - Fest Directory</title>
+  <link rel="icon" type="image/png" href="assets/images/logo.png">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #000;
+      --fg: #fff;
+      --mut: #9a9a9a;
+      --card: #101614;
+      --line: rgba(255,255,255,0.09);
+      --cy: #1de9b6;
+      --bl: #0c8f6d;
+      --nav: rgba(0,0,0,0.94);
+      --tbi: #d8d8d8;
+      --hv: rgba(255,255,255,0.09);
+      --inbg: #0b100e;
+      --inbd: rgba(255,255,255,0.14);
+      --g1: #2ef2c0;
+      --g2: #17c9a0;
+      --g3: #0fa57f;
+      color-scheme: dark;
+      box-sizing: border-box;
+    }
+    
+    html[data-theme="light"] {
+      --bg: #fff;
+      --fg: #0a0a0a;
+      --mut: #555d66;
+      --card: #f1f8f5;
+      --line: rgba(0,0,0,0.1);
+      --cy: #0a8a69;
+      --bl: #0c8f6d;
+      --nav: rgba(255,255,255,0.95);
+      --tbi: #333;
+      --hv: rgba(0,0,0,0.06);
+      --inbg: #fff;
+      --inbd: rgba(0,0,0,0.2);
+      --g1: #0a9a76;
+      --g2: #0f9f7a;
+      --g3: #0b7a5c;
+      color-scheme: light;
+    }
+    
+    html, body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--fg);
+      font-family: 'Inter Tight', system-ui, -apple-system, sans-serif;
+      overflow-x: hidden;
+      transition: background 0.3s, color 0.3s;
+    }
+
+    body {
+      isolation: isolate;
+    }
+    
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+    
+    .tb {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      background: rgba(0,0,0,0.55);
+      -webkit-backdrop-filter: blur(14px) saturate(140%);
+      backdrop-filter: blur(14px) saturate(140%);
+      border-bottom: 1px solid var(--line);
+    }
+    
+    html[data-theme="light"] .tb {
+      background: rgba(255,255,255,0.85);
+    }
+    
+    #sp {
+      position: absolute;
+      left: 0;
+      bottom: -1px;
+      height: 2px;
+      width: 0;
+      background: linear-gradient(90deg, #1de9b6, #0fa57f);
+      box-shadow: 0 0 10px #1de9b6;
+      transition: width 0.8s cubic-bezier(0.65, 0, 0.35, 1);
+    }
+    
+    .tbi {
+      display: inline-flex;
+      align-items: center;
+      padding: 0.9em 1.3em;
+      border-radius: 10px;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      color: var(--tbi);
+      transition: background 0.2s, color 0.2s;
+      cursor: pointer;
+      border: 0;
+      background: none;
+    }
+    
+    .tbi:hover, .tbi.on {
+      background: var(--hv);
+      color: var(--fg);
+    }
+    
+    .btn {
+      display: inline-block;
+      background: linear-gradient(90deg, #1de9b6, #0fa57f);
+      box-shadow: 0 0 26px rgba(29,233,182,0.4);
+      border-radius: 999px;
+      padding: 0.8em 2em;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: #02140f;
+      border: 0;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    
+    .btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 0 42px rgba(29,233,182,0.75);
+    }
+    
+    .btn.ghost {
+      background: var(--hv);
+      box-shadow: none;
+      color: var(--fg);
+      border: 1px solid rgba(29,233,182,0.35);
+    }
+    
+    .btn.ghost:hover {
+      border-color: var(--cy);
+      color: var(--cy);
+    }
+    
+    .grad {
+      background: linear-gradient(90deg, var(--g1), var(--g2) 55%, var(--g3));
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+    
+    .hero {
+      position: relative;
+      min-height: auto;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      overflow: hidden;
+      isolation: isolate;
+      padding: 80px 20px;
+    }
+    
+    .smoke {
+      position: absolute;
+      inset: 0;
+      z-index: -1;
+      background: radial-gradient(70% 50% at 50% 100%, rgba(0,0,0,0.55), transparent 70%),
+                  radial-gradient(40% 30% at 50% 0%, rgba(29,233,182,0.12), transparent 70%);
+    }
+    
+    html[data-theme="light"] .smoke {
+      background: radial-gradient(70% 50% at 50% 100%, rgba(255,255,255,0.5), transparent 70%);
+    }
+    
+    .eyebrow {
+      font-size: 11px;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: var(--cy);
+      font-weight: 600;
+    }
+    
+    h2.h {
+      font-size: clamp(28px, 4vw, 44px);
+      font-weight: 600;
+      letter-spacing: -0.03em;
+      line-height: 1.05;
+      margin: 0.3em 0 0.5em;
+    }
+    
+    .box {
+      background: color-mix(in srgb, var(--card) 88%, transparent);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 24px;
+    }
+    
+    html[data-theme="light"] .box {
+      background: rgba(255,255,255,0.78);
+      border-color: rgba(10,138,105,0.16);
+      box-shadow: 0 8px 30px rgba(10,138,105,0.08);
+    }
+    
+    .sc {
+      cursor: pointer;
+      transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s;
+    }
+    
+    .sc:hover, .sc:focus-visible {
+      transform: translateY(-3px);
+      border-color: var(--cy);
+      box-shadow: 0 0 26px rgba(29,233,182,0.3);
+      outline: none;
+    }
+    
+    .scene {
+      position: fixed;
+      inset: 0;
+      z-index: -1;
+      pointer-events: none;
+      overflow: hidden;
+    }
+    
+    .scene-glow {
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(70% 45% at 50% 0%, rgba(29,233,182,0.22), transparent 58%),
+                  radial-gradient(50% 40% at 86% 78%, rgba(15,165,127,0.2), transparent 62%),
+                  radial-gradient(42% 32% at 12% 72%, rgba(29,233,182,0.1), transparent 55%),
+                  #020806;
+    }
+    
+    html[data-theme="light"] .scene-glow {
+      background: radial-gradient(70% 45% at 50% 0%, rgba(29,233,182,0.28), transparent 60%),
+                  radial-gradient(45% 40% at 92% 30%, rgba(110,200,255,0.22), transparent 65%),
+                  radial-gradient(50% 45% at 8% 85%, rgba(46,242,192,0.22), transparent 65%),
+                  radial-gradient(40% 35% at 70% 95%, rgba(180,240,140,0.2), transparent 65%),
+                  linear-gradient(160deg, #ecfff7 0%, #f5fbff 45%, #effff4 100%);
+    }
+    
+    .scene-wall {
+      position: absolute;
+      inset: 0;
+      background-image: linear-gradient(rgba(29,233,182,0.14) 1px, transparent 1px),
+                        linear-gradient(90deg, rgba(29,233,182,0.12) 1px, transparent 1px);
+      background-size: 52px 52px;
+      -webkit-mask-image: radial-gradient(ellipse 68% 58% at 50% 32%, #000 8%, transparent 72%);
+      mask-image: radial-gradient(ellipse 68% 58% at 50% 32%, #000 8%, transparent 72%);
+    }
+    
+    html[data-theme="light"] .scene-wall {
+      background-image: linear-gradient(rgba(10,138,105,0.12) 1px, transparent 1px),
+                        linear-gradient(90deg, rgba(10,138,105,0.1) 1px, transparent 1px);
+    }
+    
+    .scene-floor {
+      position: absolute;
+      left: -30%;
+      right: -30%;
+      bottom: -8%;
+      height: 78%;
+      perspective: 380px;
+      -webkit-mask-image: linear-gradient(to top, transparent 0%, #000 22%, #000 62%, transparent 100%),
+                          linear-gradient(90deg, transparent 0%, #000 16%, #000 84%, transparent 100%);
+      mask-image: linear-gradient(to top, transparent 0%, #000 22%, #000 62%, transparent 100%),
+                 linear-gradient(90deg, transparent 0%, #000 16%, #000 84%, transparent 100%);
+      -webkit-mask-composite: source-in;
+      mask-composite: intersect;
+      overflow: hidden;
+      contain: layout paint style;
+    }
+    
+    .scene-floor i {
+      display: block;
+      width: 100%;
+      height: 160%;
+      transform: rotateX(70deg);
+      transform-origin: 50% 0;
+      background-image: linear-gradient(rgba(46,242,192,0.42) 1px, transparent 1px),
+                        linear-gradient(90deg, rgba(29,233,182,0.32) 1px, transparent 1px);
+      background-size: 56px 56px;
+      animation: floorDrift 22s linear infinite;
+      backface-visibility: hidden;
+    }
+    
+    html[data-theme="light"] .scene-floor i {
+      background-image: linear-gradient(rgba(10,138,105,0.28) 1px, transparent 1px),
+                        linear-gradient(90deg, rgba(12,143,109,0.2) 1px, transparent 1px);
+    }
+    
+    @keyframes floorDrift {
+      from { transform: rotateX(70deg) translateY(0); }
+      to { transform: rotateX(70deg) translateY(56px); }
+    }
+    
+    .scene-orbs, .scene-dots {
+      position: absolute;
+      inset: 0;
+      display: none;
+    }
+    
+    html[data-theme="light"] .scene-orbs, html[data-theme="light"] .scene-dots {
+      display: block;
+    }
+    
+    .scene-orbs b {
+      position: absolute;
+      border-radius: 50%;
+      opacity: 0.7;
+    }
+    
+    .scene-orbs .o1 {
+      width: 46vw;
+      height: 46vw;
+      left: -12vw;
+      top: -14vw;
+      background: radial-gradient(circle, #7ff5d4, transparent 65%);
+    }
+    
+    .scene-orbs .o2 {
+      width: 40vw;
+      height: 40vw;
+      right: -10vw;
+      top: 16vh;
+      background: radial-gradient(circle, #a8dcff, transparent 65%);
+      animation-duration: 24s;
+      animation-delay: -7s;
+    }
+    
+    .scene-orbs .o3 {
+      width: 52vw;
+      height: 52vw;
+      left: 24vw;
+      bottom: -26vw;
+      background: radial-gradient(circle, #b6f5c8, transparent 65%);
+      animation-duration: 28s;
+      animation-delay: -13s;
+    }
+    
+    .scene-orbs .o4 {
+      width: 26vw;
+      height: 26vw;
+      left: 6vw;
+      bottom: 8vh;
+      background: radial-gradient(circle, #8ff0e0, transparent 65%);
+      animation-duration: 18s;
+      animation-delay: -4s;
+    }
+    
+    @keyframes orb {
+      0% { transform: translate(0, 0) scale(1); }
+      50% { transform: translate(6vw, 4vh) scale(1.12); }
+      100% { transform: translate(-4vw, -3vh) scale(0.94); }
+    }
+    
+    .scene-dots {
+      background-image: radial-gradient(rgba(10,138,105,0.22) 1.2px, transparent 1.4px);
+      background-size: 22px 22px;
+      -webkit-mask-image: radial-gradient(ellipse 60% 50% at 80% 20%, #000, transparent 70%),
+                          radial-gradient(ellipse 50% 45% at 15% 85%, #000, transparent 70%);
+      mask-image: radial-gradient(ellipse 60% 50% at 80% 20%, #000, transparent 70%),
+                 radial-gradient(ellipse 50% 45% at 15% 85%, #000, transparent 70%);
+    }
+    
+    .brand {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 48px;
+      padding: 0;
+      border: 0;
+      background: none;
+    }
+
+    .brand.justify-start {
+      justify-content: flex-start;
+    }
+    
+    .brand img {
+      height: 56px;
+      width: auto;
+      max-width: none;
+      object-fit: contain;
+      display: block;
+    }
+    
+    .brand .logo-light {
+      display: none;
+    }
+    
+    html[data-theme="light"] .brand .logo-dark {
+      display: none;
+    }
+    
+    html[data-theme="light"] .brand .logo-light {
+      display: block;
+    }
+    
+    .tg {
+      position: relative;
+      flex: none;
+      width: 64px;
+      height: 32px;
+      padding: 0;
+      border-radius: 999px;
+      border: 2px solid #fff;
+      background: #fff;
+      cursor: pointer;
+      transition: background 0.3s, border-color 0.3s;
+    }
+    
+    .tg svg {
+      position: absolute;
+      top: 50%;
+      width: 16px;
+      height: 16px;
+      margin-top: -8px;
+      transition: opacity 0.3s;
+      fill: #000;
+      stroke: #000;
+    }
+    
+    .tg .mo {
+      left: 10px;
+      opacity: 1;
+      stroke: none;
+    }
+    
+    .tg .su {
+      right: 10px;
+      opacity: 0;
+    }
+    
+    .tg .kn {
+      position: absolute;
+      top: 3px;
+      left: 3px;
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: #000;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.35);
+      transform: translateX(32px);
+      transition: transform 0.35s cubic-bezier(0.3, 1.3, 0.5, 1), background 0.3s;
+    }
+    
+    .tg:focus-visible {
+      outline: 2px solid var(--cy);
+      outline-offset: 2px;
+    }
+    
+    html[data-theme="light"] .tg {
+      background: #000;
+      border-color: #000;
+    }
+    
+    html[data-theme="light"] .tg svg {
+      fill: #fff;
+      stroke: #fff;
+    }
+    
+    html[data-theme="light"] .tg .mo {
+      opacity: 0;
+    }
+    
+    html[data-theme="light"] .tg .su {
+      opacity: 1;
+    }
+    
+    html[data-theme="light"] .tg .kn {
+      transform: none;
+      background: #fff;
+    }
+    
+    .cd {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin-top: clamp(12px, 2.4vh, 22px);
+      padding: 6px 8px 6px 14px;
+      border: 1px solid rgba(29,233,182,0.3);
+      border-radius: 999px;
+      background: color-mix(in srgb, var(--card) 70%, transparent);
+      font-size: 11px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--mut);
+    }
+    
+    .cd b {
+      display: inline-flex;
+      align-items: baseline;
+      gap: 4px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: var(--hv);
+      color: var(--fg);
+      font-variant-numeric: tabular-nums;
+      letter-spacing: 0;
+      font-size: 14px;
+      font-weight: 600;
+    }
+    
+    .cd b small {
+      font-size: 9px;
+      color: var(--mut);
+      letter-spacing: 0.12em;
+      font-weight: 500;
+    }
+    
+    .cd .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--cy);
+      animation: pulse 1.6s infinite;
+    }
+    
+    @keyframes pulse {
+      0% { box-shadow: 0 0 0 0 rgba(29,233,182,0.6); }
+      70%, 100% { box-shadow: 0 0 0 10px rgba(29,233,182,0); }
+    }
+    
+    .hero h1 .grad {
+      background-image: linear-gradient(90deg, var(--g1), var(--g3) 30%, #b5fbe6 50%, var(--g3) 70%, var(--g1));
+      background-size: 200% auto;
+      animation: shine 7s linear infinite;
+    }
+    
+    html[data-theme="light"] .hero h1 .grad {
+      background-image: linear-gradient(90deg, var(--g1), var(--g3) 30%, #2fd6a8 50%, var(--g3) 70%, var(--g1));
+    }
+    
+    @keyframes shine {
+      to { background-position: -200% center; }
+    }
+    
+    .fxr {
+      opacity: 0;
+      translate: 0 40px;
+      transition: opacity 0.7s cubic-bezier(0.22, 1, 0.36, 1), translate 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    
+    .fxr.fxu {
+      translate: 0 -40px;
+    }
+    
+    .fxr.fxs {
+      opacity: 1;
+      translate: 0 0;
+    }
+    
+    main, section, footer {
+      position: relative;
+      z-index: 1;
+    }
+
+    section.sec {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 88px 20px;
+    }
+    
+    .chip {
+      display: inline-flex;
+      gap: 8px;
+      align-items: center;
+      padding: 0.6em 1em;
+      border: 1px solid var(--inbd);
+      border-radius: 999px;
+      font-size: 13px;
+      cursor: pointer;
+    }
+    
+    .chip.active {
+      color: #fff;
+      background: var(--bl);
+      border-color: var(--cy);
+      box-shadow: 0 0 14px rgba(29,233,182,0.35);
+    }
+    
+    .status-upcoming {
+      background: rgba(29,233,182,0.15);
+      color: var(--cy);
+      border: 1px solid rgba(29,233,182,0.3);
+    }
+    
+    .status-ongoing {
+      background: rgba(255,200,60,0.15);
+      color: #f5b82e;
+      border: 1px solid rgba(255,200,60,0.3);
+    }
+    
+    .status-completed {
+      background: rgba(100,100,100,0.15);
+      color: #9a9a9a;
+      border: 1px solid rgba(100,100,100,0.3);
+    }
+    
+    .tilt {
+      position: relative;
+    }
+    
+    .tilt::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: inherit;
+      pointer-events: none;
+      background: radial-gradient(420px circle at var(--mx, 50%) var(--my, 50%), rgba(29,233,182,0.16), transparent 45%);
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+    
+    .tilt:hover::after {
+      opacity: 1;
+    }
+    
+    .tilt:hover {
+      border-color: color-mix(in srgb, var(--cy) 55%, transparent);
+    }
+    
+    .btn {
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .btn::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: -60%;
+      width: 40%;
+      background: linear-gradient(100deg, transparent, rgba(255,255,255,0.55), transparent);
+      transform: skewX(-20deg);
+      transition: left 0.6s;
+      pointer-events: none;
+    }
+    
+    .btn:hover::after {
+      left: 130%;
+    }
+    
+    .mq {
+      margin-top: 28px;
+      overflow: hidden;
+      -webkit-mask-image: linear-gradient(90deg, transparent, #000 10%, #000 90%, transparent);
+      mask-image: linear-gradient(90deg, transparent, #000 10%, #000 90%, transparent);
+    }
+    
+    .mqt {
+      display: flex;
+      width: max-content;
+      animation: mq 80s linear infinite;
+      font-size: 12px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--mut);
+      white-space: nowrap;
+    }
+    
+    .mqt span {
+      padding-right: 26px;
+    }
+    
+    .mqt span::after {
+      content: '✦';
+      margin-left: 26px;
+      color: var(--cy);
+    }
+    
+    .mq:hover .mqt {
+      animation-play-state: paused;
+    }
+    
+    @keyframes mq {
+      to { transform: translateX(-50%); }
+    }
+    
+    @media (prefers-reduced-motion: reduce) {
+      .fxr {
+        transition-duration: 0.01s !important;
+      }
+      .scene-floor i, .scene-orbs b {
+        animation: none;
+      }
+      .mqt, .hero h1 .grad, .cd .dot {
+        animation: none;
+      }
+    }
+    
+    .kb {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      height: 36px;
+      padding: 0 10px;
+      border-radius: 10px;
+      border: 1px solid var(--line);
+      background: var(--hv);
+      color: var(--tbi);
+      font: inherit;
+      font-size: 12px;
+      cursor: pointer;
+      transition: border-color 0.2s, color 0.2s;
+    }
+    
+    .kb:hover {
+      border-color: var(--cy);
+      color: var(--fg);
+    }
+    
+    .kb svg {
+      width: 16px;
+      height: 16px;
+    }
+    
+    kbd {
+      font: 600 10px/1 ui-monospace, SFMono-Regular, Menlo, monospace;
+      padding: 4px 6px;
+      border-radius: 6px;
+      border: 1px solid var(--line);
+      background: var(--hv);
+      color: var(--mut);
+    }
+    
+    .in {
+      width: 100%;
+      background: var(--inbg);
+      border: 1px solid var(--inbd);
+      border-radius: 10px;
+      padding: 0.8em 1em;
+      color: var(--fg);
+      font: inherit;
+      font-size: 14px;
+    }
+    
+    .in:focus {
+      outline: 2px solid var(--bl);
+      border-color: transparent;
+    }
+    
+    label.l {
+      display: block;
+      font-size: 11px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--mut);
+      margin: 0 0 6px;
+    }
+    
+    footer {
+      border-top: 1px solid var(--line);
+      margin-top: 20px;
+    }
+    
+    details {
+      border-bottom: 1px solid var(--line);
+      padding: 18px 0;
+    }
+    
+    details summary {
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 17px;
+      color: var(--fg);
+    }
+    
+    details p {
+      color: var(--mut);
+      margin: 10px 0 0;
+      line-height: 1.6;
+    }
+    
+    details[open] summary {
+      color: var(--cy);
+    }
+  
+    /* Footer logo: bigger and left-aligned */
+    .footer-brand { display: flex; justify-content: flex-start; align-items: flex-start; height: auto; }
+    .footer-brand img { height: 96px; width: 152px; margin: 0 0 8px 0; object-fit: cover; object-position: 50% 55.7%; display: block; } /* crops the logo file's empty top/bottom padding */
+    .footer-brand .logo-light { display: none; }
+    html[data-theme="light"] .footer-brand .logo-dark { display: none; }
+    html[data-theme="light"] .footer-brand .logo-light { display: block; }
+    @media (max-width: 640px) { .footer-brand img { height: 72px; width: 114px; } }
+  </style>
+  <script>
+    // Load theme immediately to prevent flash
+    try {
+      const savedTheme = localStorage.getItem('aena-theme');
+      if (savedTheme) {
+        document.documentElement.setAttribute('data-theme', savedTheme);
+      }
+    } catch (e) {}
+  </script>
+</head>
+<body>
+  <div class="scene" aria-hidden="true">
+    <div class="scene-glow"></div>
+    <div class="scene-orbs">
+      <b class="o1"></b>
+      <b class="o2"></b>
+      <b class="o3"></b>
+      <b class="o4"></b>
+    </div>
+    <div class="scene-dots"></div>
+    <div class="scene-wall"></div>
+    <div class="scene-floor"><i></i></div>
+  </div>
+
+  <!-- Navigation -->
+  <header class="tb">
+    <div class="flex items-center justify-between md:grid md:grid-cols-[1fr_auto_1fr] px-4 md:px-10 h-[72px]">
+      <a href="/" class="brand md:justify-self-start" aria-label="Home">
+        <img class="logo-dark" src="assets/images/logo.png" alt="DRMC IT Club logo">
+        <img class="logo-light" src="assets/images/logo-black.png" alt="" aria-hidden="true">
+      </a>
+      <nav class="hidden md:flex items-center gap-1" id="nav" aria-label="Primary">
+        <a href="#fests" class="tbi">Fests</a>
+        <a href="dashboard.html" class="tbi">My Registrations</a>
+        <a href="admin.html" class="tbi">Admin</a>
+      </nav>
+      <div class="flex items-center gap-2 md:justify-self-end">
+        <button class="tg" id="tg" role="switch" aria-checked="false" aria-label="Switch between black and white theme">
+          <svg class="mo" viewBox="0 0 24 24"><path d="M13 3.5a8 8 0 1 0 7.5 10.8A6.6 6.6 0 0 1 13 3.5z"/></svg>
+          <svg class="su" viewBox="0 0 24 24" stroke-width="1.7" stroke-linecap="round"><circle cx="12" cy="12" r="3.6" stroke="none"/><path d="M12 2.5V5M12 19v2.5M2.5 12H5M19 12h2.5M5.3 5.3L7 7M17 17l1.7 1.7M18.7 5.3L17 7M7 17l-1.7 1.7"/></svg>
+          <span class="kn"></span>
+        </button>
+        <button class="tbi md:hidden" id="mb" aria-label="Menu">Menu</button>
+      </div>
+    </div>
+    <div id="mm" class="hidden md:hidden px-4 pb-3 flex-col gap-1">
+      <a href="#fests" class="tbi">Fests</a>
+      <a href="dashboard.html" class="tbi">My Registrations</a>
+      <a href="admin.html" class="tbi">Admin</a>
+    </div>
+    <div id="sp"></div>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="hero" id="home">
+    <div class="smoke"></div>
+    <div class="text-center px-4">
+      <div class="fxr fxs">
+        <div class="eyebrow">Smart Club Operations Platform</div>
+        <h1 class="m-0 font-semibold" style="font-size: clamp(48px, 8vw, 96px); line-height: 1.1; letter-spacing: -0.035em; margin: 20px 0">
+          DRMC IT Club<br><span class="grad">Fest Directory</span>
+        </h1>
+        <p class="text-sm" style="color: var(--mut); margin: 20px 0 0">
+          Discover and register for amazing tech events. Browse upcoming fests, explore segments, and join the innovation.
+        </p>
+        <div class="flex gap-3 justify-center flex-wrap" style="margin-top: 32px">
+          <a href="#fests" class="btn">Explore Fests</a>
+          <a href="dashboard.html" class="btn ghost">My Registrations</a>
+        </div>
+        <div class="cd" id="cd"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Fests Section -->
+  <section class="sec" id="fests">
+    <div class="fxr fxs">
+      <div class="eyebrow">Upcoming Events</div>
+      <h2 class="h">Choose your fest.</h2>
+      <p class="text-sm" style="color: var(--mut); margin: 0 0 18px">
+        Browse our upcoming tech fests and select the one you want to participate in.
+      </p>
+    </div>
+    
+    <!-- Search and Filter -->
+    <div class="box mb-8 fxs">
+      <div class="grid md:grid-cols-3 gap-4">
+        <div>
+          <label class="l">Search</label>
+          <input type="text" id="search-input" class="in" placeholder="Search fests by name or description...">
+        </div>
+        <div>
+          <label class="l">Category</label>
+          <select id="category-filter" class="in">
+            <option value="">All Categories</option>
+            <option value="Tech Festival">Tech Festival</option>
+            <option value="Cultural">Cultural</option>
+            <option value="Sports">Sports</option>
+          </select>
+        </div>
+        <div>
+          <label class="l">Status</label>
+          <select id="status-filter" class="in">
+            <option value="">All Status</option>
+            <option value="upcoming">Upcoming</option>
+            <option value="ongoing">Ongoing</option>
+            <option value="completed">Completed</option>
+          </select>
+        </div>
+      </div>
+      <div class="flex items-center gap-4 mt-4">
+        <div id="active-filters" class="flex gap-2 flex-wrap"></div>
+        <button id="clear-filters" class="text-xs" style="color: var(--cy); opacity: 0; transition: opacity 0.3s;">Clear all filters</button>
+      </div>
+    </div>
+    
+    <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6" id="fests-grid">
+      <!-- Fests will be loaded here -->
+    </div>
+    <div id="no-results" class="hidden text-center py-16">
+      <p class="text-gray-400 text-lg mb-4">No fests found matching your criteria.</p>
+      <button onclick="clearAllFilters()" class="btn ghost text-sm">Clear Filters</button>
+    </div>
+  </section>
+
+  <!-- FAQ Section -->
+  <section class="sec" id="faq">
+    <div class="fxr fxs">
+      <div class="eyebrow">FAQ</div>
+      <h2 class="h">Frequently Asked Questions</h2>
+    </div>
+    <div class="space-y-4">
+      <details class="box">
+        <summary class="text-base font-semibold cursor-pointer">How do I register for an event?</summary>
+        <p class="mt-3 text-sm" style="color: var(--mut)">Browse fests, select an event, and fill out the registration form. You'll receive a unique registration ID after successful registration.</p>
+      </details>
+      <details class="box">
+        <summary class="text-base font-semibold cursor-pointer">What payment methods are accepted?</summary>
+        <p class="mt-3 text-sm" style="color: var(--mut)">We accept bKash payments. Send the registration fee to 01814333287 and enter the transaction ID in the registration form.</p>
+      </details>
+      <details class="box">
+        <summary class="text-base font-semibold cursor-pointer">Can I cancel my registration?</summary>
+        <p class="mt-3 text-sm" style="color: var(--mut)">Yes, you can cancel pending registrations from your dashboard. Confirmed registrations cannot be cancelled without organizer approval.</p>
+      </details>
+      <details class="box">
+        <summary class="text-base font-semibold cursor-pointer">How do I check my registration status?</summary>
+        <p class="mt-3 text-sm" style="color: var(--mut)">Visit the "My Registrations" page to view all your registrations and their current status.</p>
+      </details>
+    </div>
+  </section>
+
+  <!-- Social Sharing -->
+  <section class="sec">
+    <div class="box text-center">
+      <h2 class="text-2xl md:text-3xl font-bold mb-4">Share This Platform</h2>
+      <p class="text-sm" style="color: var(--mut); margin-bottom: 20px">Help others discover amazing tech events!</p>
+      <div class="flex justify-center gap-4">
+        <button onclick="shareOnTwitter()" class="btn ghost text-sm px-5 py-2.5">
+          <svg class="w-5 h-5 inline mr-2" fill="currentColor" viewBox="0 0 24 24"><path d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723c-.951.555-2.005.959-3.127 1.184a4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.827 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z"/></svg>
+          Twitter
+        </button>
+        <button onclick="shareOnFacebook()" class="btn ghost text-sm px-5 py-2.5">
+          <svg class="w-5 h-5 inline mr-2" fill="currentColor" viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+          Facebook
+        </button>
+        <button onclick="copyLink()" class="btn ghost text-sm px-5 py-2.5">
+          <svg class="w-5 h-5 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+          Copy Link
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer>
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <div class="grid md:grid-cols-4 gap-8">
+        <div class="text-left">
+          <div class="footer-brand">
+            <img class="logo-dark" src="assets/images/logo.png" alt="DRMC IT Club">
+            <img class="logo-light" src="assets/images/logo-black.png" alt="" aria-hidden="true">
+          </div>
+          <p class="text-sm mt-2" style="color: var(--mut)">Smart Club Operations Platform</p>
+        </div>
+        <div>
+          <h3 class="text-base font-semibold mb-4">Quick Links</h3>
+          <div class="space-y-2 text-sm" style="color: var(--mut)">
+            <a href="index.html" class="block hover:text-teal-400">Fests</a>
+            <a href="dashboard.html" class="block hover:text-teal-400">My Registrations</a>
+            <a href="admin.html" class="block hover:text-teal-400">Admin Panel</a>
+          </div>
+        </div>
+        <div>
+          <h3 class="text-base font-semibold mb-4">Contact</h3>
+          <div class="space-y-2 text-sm" style="color: var(--mut)">
+            <p>DRMC IT Club</p>
+            <p>Dhaka Residential Model College</p>
+            <p>bKash: 01814333287</p>
+          </div>
+        </div>
+        <div>
+          <h3 class="text-base font-semibold mb-4">About</h3>
+          <p class="text-sm" style="color: var(--mut)">
+            This platform was built for the AI Web Development Contest to eliminate the need for Google Forms in club event management.
+          </p>
+        </div>
+      </div>
+      <div class="border-t border-white/10 mt-8 pt-8 text-center text-sm" style="color: var(--mut)">
+        <p>© 2026 DRMC IT Club. All rights reserved.</p>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // Reset scroll position on page reload
+    if('scrollRestoration' in history){
+      history.scrollRestoration='manual';
+    }
+    window.addEventListener('load',()=>{
+      window.scrollTo(0,0);
+    });
+    window.addEventListener('pageshow', (e) => {
+      if (e.persisted) {
+        // Page was restored from bfcache - keep current position
+      } else {
+        // Fresh page load
+        window.scrollTo(0,0);
+      }
+    });
+
+    // Force a repaint if Chrome restores the page from bfcache or the tab is re-shown
+    function forceRepaint() {
+      document.body.style.transform = 'translateZ(0)';
+      requestAnimationFrame(() => requestAnimationFrame(() => { document.body.style.transform = ''; }));
+    }
+    window.addEventListener('pageshow', forceRepaint);
+    document.addEventListener('visibilitychange', () => { if (!document.hidden) forceRepaint(); });
+
+    // Mock data for fests
+    const FESTS = {
+      "tech-carnival-2026": {
+        id: "tech-carnival-2026",
+        name: "9th DRMC International Tech Carnival 2026",
+        description: "Three days of programming, robotics, gaming, showcases, exhibitions, olympiads and quizzes. The biggest tech event in Bangladesh.",
+        startDate: "2026-10-08",
+        endDate: "2026-10-10",
+        venue: "Dhaka Residential Model College",
+        image: "https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=800",
+        status: "upcoming",
+        category: "Tech Festival",
+        organization: "DRMC IT Club",
+        eventCount: 43
+      },
+      "winter-tech-fest-2026": {
+        id: "winter-tech-fest-2026",
+        name: "Winter Tech Fest 2026",
+        description: "A winter celebration of technology featuring hackathons, workshops, and tech quizzes. Join us for three days of innovation and learning.",
+        startDate: "2026-12-15",
+        endDate: "2026-12-17",
+        venue: "Dhaka Residential Model College",
+        image: "https://images.unsplash.com/photo-1518770660439-4636190af475?w=800",
+        status: "upcoming",
+        category: "Tech Festival",
+        organization: "DRMC IT Club",
+        eventCount: 12
+      },
+      "freshers-tech-fest-2027": {
+        id: "freshers-tech-fest-2027",
+        name: "Freshers Tech Fest 2027",
+        description: "Welcome new students to the world of technology! Coding challenges, AI workshops, and introductory tech sessions for beginners.",
+        startDate: "2027-01-20",
+        endDate: "2027-01-22",
+        venue: "Dhaka Residential Model College",
+        image: "https://images.unsplash.com/photo-1531482615713-2afd69097998?w=800",
+        status: "upcoming",
+        category: "Tech Festival",
+        organization: "DRMC IT Club",
+        eventCount: 8
+      }
+    };
+
+    // Format date
+    function formatDate(dateStr) {
+      const date = new Date(dateStr);
+      return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    }
+
+    // Render fest card
+    function renderFestCard(fest) {
+      const statusClass = `status-${fest.status}`;
+      const festPage = {
+        "tech-carnival-2026": "tech-carnival-2026.html",
+        "winter-tech-fest-2026": "winter-tech-fest-2026.html",
+        "freshers-tech-fest-2027": "freshers-tech-fest-2027.html"
+      };
+      return `
+        <div class="sc box tilt fxs" data-id="${fest.id}" onclick="window.location.href='${festPage[fest.id]}'">
+          <div class="aspect-video rounded-lg overflow-hidden mb-4" style="background: var(--hv)">
+            <img src="${fest.image}" alt="${fest.name}" class="w-full h-full object-cover">
+          </div>
+          <div class="flex items-center gap-2 mb-3">
+            <span class="chip text-xs ${statusClass}">${fest.status.charAt(0).toUpperCase() + fest.status.slice(1)}</span>
+            <span class="text-xs" style="color: var(--mut)">${fest.category}</span>
+          </div>
+          <h3 class="text-lg font-bold mb-2">${fest.name}</h3>
+          <p class="text-sm mb-4 line-clamp-2" style="color: var(--mut)">${fest.description}</p>
+          <div class="flex items-center justify-between text-sm" style="color: var(--mut)">
+            <span>${formatDate(fest.startDate)}</span>
+            <span class="font-medium" style="color: var(--cy)">${fest.eventCount} events</span>
+          </div>
+        </div>
+      `;
+    }
+
+    // Render all fests
+    function renderFests(fests) {
+      const grid = document.getElementById('fests-grid');
+      const noResults = document.getElementById('no-results');
+      
+      if (Object.keys(fests).length === 0) {
+        grid.innerHTML = '';
+        noResults.classList.remove('hidden');
+        return;
+      }
+      
+      noResults.classList.add('hidden');
+      grid.innerHTML = Object.values(fests).map(renderFestCard).join('');
+    }
+
+    // Filter fests
+    function filterFests() {
+      const search = document.getElementById('search-input').value.toLowerCase();
+      const category = document.getElementById('category-filter').value;
+      const status = document.getElementById('status-filter').value;
+      
+      const filtered = {};
+      
+      for (const [id, fest] of Object.entries(FESTS)) {
+        const matchesSearch = fest.name.toLowerCase().includes(search) || 
+                             fest.description.toLowerCase().includes(search);
+        const matchesCategory = !category || fest.category === category;
+        const matchesStatus = !status || fest.status === status;
+        
+        if (matchesSearch && matchesCategory && matchesStatus) {
+          filtered[id] = fest;
+        }
+      }
+      
+      renderFests(filtered);
+      updateActiveFilters(search, category, status);
+    }
+
+    // Update active filters display
+    function updateActiveFilters(search, category, status) {
+      const container = document.getElementById('active-filters');
+      const clearBtn = document.getElementById('clear-filters');
+      const filters = [];
+      
+      if (search) filters.push({ type: 'search', value: search, label: `Search: "${search}"` });
+      if (category) filters.push({ type: 'category', value: category, label: category });
+      if (status) filters.push({ type: 'status', value: status, label: status.charAt(0).toUpperCase() + status.slice(1) });
+      
+      if (filters.length > 0) {
+        container.innerHTML = filters.map(f => `
+          <span class="chip text-xs" style="border-color: var(--cy); color: var(--cy)">
+            ${f.label}
+            <button onclick="removeFilter('${f.type}', '${f.value}')" style="background:none;border:none;color:inherit;cursor:pointer;margin-left:4px;font-size:14px">×</button>
+          </span>
+        `).join('');
+        clearBtn.style.opacity = '1';
+        clearBtn.style.cursor = 'pointer';
+      } else {
+        container.innerHTML = '';
+        clearBtn.style.opacity = '0';
+        clearBtn.style.cursor = 'default';
+      }
+    }
+
+    // Remove individual filter
+    function removeFilter(type, value) {
+      if (type === 'search') {
+        document.getElementById('search-input').value = '';
+      } else if (type === 'category') {
+        document.getElementById('category-filter').value = '';
+      } else if (type === 'status') {
+        document.getElementById('status-filter').value = '';
+      }
+      filterFests();
+    }
+
+    // Clear all filters
+    function clearAllFilters() {
+      document.getElementById('search-input').value = '';
+      document.getElementById('category-filter').value = '';
+      document.getElementById('status-filter').value = '';
+      filterFests();
+    }
+
+    // Event listeners for filters
+    document.getElementById('search-input').addEventListener('input', filterFests);
+    document.getElementById('category-filter').addEventListener('change', filterFests);
+    document.getElementById('status-filter').addEventListener('change', filterFests);
+    document.getElementById('clear-filters').addEventListener('click', clearAllFilters);
+
+    // Initial render
+    renderFests(FESTS);
+
+    // Mobile menu toggle
+    document.getElementById('mb').addEventListener('click', () => {
+      document.getElementById('mm').classList.toggle('hidden');
+      document.getElementById('mm').classList.toggle('flex');
+    });
+
+    // Theme toggle
+    const themeToggle = document.getElementById('tg');
+    
+    // Load saved theme
+    try {
+      const savedTheme = localStorage.getItem('aena-theme');
+      if (savedTheme) {
+        document.documentElement.setAttribute('data-theme', savedTheme);
+        themeToggle.setAttribute('aria-checked', savedTheme === 'light');
+      }
+    } catch (e) {}
+    
+    themeToggle.addEventListener('click', () => {
+      const currentTheme = document.documentElement.getAttribute('data-theme');
+      const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', newTheme);
+      themeToggle.setAttribute('aria-checked', newTheme === 'light');
+      try {
+        localStorage.setItem('aena-theme', newTheme);
+      } catch (e) {}
+    });
+
+    // Countdown timer
+    function updateCountdown() {
+      const targetDate = new Date('2026-10-08T09:00:00');
+      const now = new Date();
+      const diff = targetDate - now;
+      
+      const cd = document.getElementById('cd');
+      
+      if (diff > 0) {
+        const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+        
+        cd.innerHTML = `
+          <span class="dot"></span>
+          <b>${days}<small>D</small></b>
+          <b>${hours}<small>H</small></b>
+          <b>${minutes}<small>M</small></b>
+          <b>${seconds}<small>S</small></b>
+        `;
+      } else {
+        cd.innerHTML = `<span class="dot"></span><b>Event Started!</b>`;
+      }
+    }
+    updateCountdown();
+    setInterval(updateCountdown, 1000);
+
+    // Scroll animations
+    const observerOptions = {
+      threshold: 0.1,
+      rootMargin: '0px 0px -50px 0px'
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('fxs');
+        }
+      });
+    }, observerOptions);
+
+    document.querySelectorAll('.fxr').forEach(el => observer.observe(el));
+
+    // Confetti celebration
+    function triggerConfetti() {
+      confetti({
+        particleCount: 100,
+        spread: 70,
+        origin: { y: 0.6 },
+        colors: ['#1de9b6', '#0fa57f', '#2ef2c0', '#17c9a0']
+      });
+    }
+
+    // Trigger confetti on certain actions
+    document.querySelector('.btn').addEventListener('click', () => {
+      setTimeout(triggerConfetti, 300);
+    });
+
+    // Social sharing functions
+    function shareOnTwitter() {
+      const text = 'Check out DRMC IT Club\'s amazing event registration platform!';
+      const url = window.location.href;
+      window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`, '_blank');
+    }
+
+    function shareOnFacebook() {
+      const url = window.location.href;
+      window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`, '_blank');
+    }
+
+    function copyLink() {
+      navigator.clipboard.writeText(window.location.href).then(() => {
+        alert('Link copied to clipboard!');
+      });
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,21 @@
+# Service account keys - NEVER commit these
+service-account-key.json
+*-service-account.json
+*.pem
+*.key
+
+# Firebase
+.firebase/
+firebase-debug.log*
+firestore-debug.log*
+ui-debug.log*
+
+# Node modules
+node_modules/
+
+# Environment
+.env
+.env.local
+
+# Logs
+*.log

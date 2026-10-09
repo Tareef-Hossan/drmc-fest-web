@@ -1,0 +1,47 @@
+[
+  {
+    "regId": "DRMC26-ABC123",
+    "eventId": "ai-web-dev-2026",
+    "name": "John Doe",
+    "email": "john@example.com",
+    "phone": "01712345678",
+    "institution": "Dhaka University",
+    "teamName": "Code Warriors",
+    "txId": "TX123456789",
+    "consent": true,
+    "fee": 400,
+    "paymentStatus": "pending",
+    "createdAt": "2026-10-01T10:00:00Z",
+    "updatedAt": "2026-10-01T10:00:00Z"
+  },
+  {
+    "regId": "DRMC26-DEF456",
+    "eventId": "programming-contest-2026",
+    "name": "Jane Smith",
+    "email": "jane@example.com",
+    "phone": "01812345678",
+    "institution": "BUET",
+    "teamName": "Algo Masters",
+    "txId": "TX987654321",
+    "consent": true,
+    "fee": 500,
+    "paymentStatus": "confirmed",
+    "createdAt": "2026-10-02T10:00:00Z",
+    "updatedAt": "2026-10-02T10:00:00Z"
+  },
+  {
+    "regId": "DRMC26-GHI789",
+    "eventId": "robo-soccer-2026",
+    "name": "Bob Johnson",
+    "email": "bob@example.com",
+    "phone": "01912345678",
+    "institution": "CUET",
+    "teamName": "Robo Squad",
+    "txId": "TX456789123",
+    "consent": true,
+    "fee": 600,
+    "paymentStatus": "pending",
+    "createdAt": "2026-10-03T10:00:00Z",
+    "updatedAt": "2026-10-03T10:00:00Z"
+  }
+]

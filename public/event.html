@@ -1,0 +1,706 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Event details and registration">
+  <meta name="theme-color" content="#1de9b6">
+  <title>Event Details - DRMC IT Club</title>
+  <link rel="icon" type="image/png" href="assets/images/logo.png">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #000;
+      --fg: #fff;
+      --mut: #9a9a9a;
+      --card: rgba(16, 22, 20, 0.8);
+      --line: rgba(255,255,255,0.09);
+      --cy: #1de9b6;
+      --bl: #0c8f6d;
+      --nav: rgba(0,0,0,0.8);
+      --tbi: #d8d8d8;
+      --hv: rgba(255,255,255,0.09);
+      --inbg: rgba(11, 16, 14, 0.6);
+      --inbd: rgba(255,255,255,0.14);
+      --g1: #2ef2c0;
+      --g2: #17c9a0;
+      --g3: #0fa57f;
+      color-scheme: dark;
+      transition: background 0.3s ease, color 0.3s ease;
+    }
+    
+    html[data-theme="light"] {
+      --bg: #f8fafc;
+      --fg: #0f172a;
+      --mut: #64748b;
+      --card: rgba(255, 255, 255, 0.8);
+      --line: rgba(0,0,0,0.1);
+      --cy: #0d9488;
+      --bl: #0f766e;
+      --nav: rgba(255,255,255,0.9);
+      --tbi: #334155;
+      --hv: rgba(0,0,0,0.05);
+      --inbg: rgba(255,255,255,0.8);
+      --inbd: rgba(0,0,0,0.2);
+      --g1: #14b8a6;
+      --g2: #0d9488;
+      --g3: #0f766e;
+      color-scheme: light;
+    }
+    
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--fg);
+      font-family: 'Inter Tight', system-ui, -apple-system, sans-serif;
+      overflow-x: hidden;
+      isolation: isolate;
+    }
+    
+    .btn {
+      display: inline-block;
+      background: linear-gradient(90deg, #1de9b6, #0fa57f);
+      box-shadow: 0 0 26px rgba(29,233,182,0.4);
+      border-radius: 999px;
+      padding: 0.8em 2em;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: #02140f;
+      border: 0;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    
+    .btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 0 42px rgba(29,233,182,0.75);
+    }
+    
+    .btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+    }
+    
+    .btn.ghost {
+      background: var(--hv);
+      box-shadow: none;
+      color: var(--fg);
+      border: 1px solid rgba(29,233,182,0.35);
+    }
+    
+    .grad {
+      background: linear-gradient(90deg, var(--g1), var(--g2) 55%, var(--g3));
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+    
+    .box {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 24px;
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    }
+    
+    html[data-theme="light"] .box {
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.05);
+    }
+    
+    .in {
+      width: 100%;
+      background: var(--inbg);
+      border: 1px solid var(--inbd);
+      border-radius: 10px;
+      padding: 0.8em 1em;
+      color: var(--fg);
+      font: inherit;
+      font-size: 14px;
+    }
+    
+    .in:focus {
+      outline: 2px solid var(--bl);
+      border-color: transparent;
+    }
+    
+    .chip {
+      display: inline-flex;
+      gap: 8px;
+      align-items: center;
+      padding: 0.6em 1em;
+      border: 1px solid var(--inbd);
+      border-radius: 999px;
+      font-size: 13px;
+    }
+    
+    .scene {
+      position: fixed;
+      inset: 0;
+      z-index: -1;
+      pointer-events: none;
+      overflow: hidden;
+    }
+    
+    .scene-glow {
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(70% 45% at 50% 0%, rgba(29,233,182,0.22), transparent 58%),
+                  radial-gradient(50% 40% at 86% 78%, rgba(15,165,127,0.2), transparent 62%),
+                  radial-gradient(42% 32% at 12% 72%, rgba(29,233,182,0.1), transparent 55%),
+                  #020806;
+    }
+    
+    .scene-wall {
+      position: absolute;
+      inset: 0;
+      background-image: linear-gradient(rgba(29,233,182,0.14) 1px, transparent 1px),
+                        linear-gradient(90deg, rgba(29,233,182,0.12) 1px, transparent 1px);
+      background-size: 52px 52px;
+      mask-image: radial-gradient(ellipse 68% 58% at 50% 32%, #000 8%, transparent 72%);
+      -webkit-mask-image: radial-gradient(ellipse 68% 58% at 50% 32%, #000 8%, transparent 72%);
+    }
+    
+    .modal {
+      position: fixed;
+      inset: 0;
+      z-index: 100;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      background: rgba(0,0,0,0.8);
+      backdrop-filter: blur(8px);
+    }
+    
+    .modal.active {
+      display: flex;
+    }
+    
+    .modal-content {
+      width: 100%;
+      max-width: 600px;
+      max-height: 90vh;
+      overflow-y: auto;
+      background: var(--bg);
+      border: 1px solid rgba(29,233,182,0.35);
+      border-radius: 20px;
+      padding: 30px;
+      box-shadow: 0 0 60px rgba(29,233,182,0.25);
+    }
+    
+    .brand .logo-light {
+      display: none;
+    }
+    
+    html[data-theme="light"] .brand .logo-dark {
+      display: none;
+    }
+    
+    html[data-theme="light"] .brand .logo-light {
+      display: block;
+    }
+    
+    .brand {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 48px;
+      padding: 0;
+      border: 0;
+      background: none;
+    }
+    
+    .brand img {
+      height: 56px;
+      width: auto;
+      max-width: none;
+      object-fit: contain;
+      display: block;
+    }
+  </style>
+</head>
+<body>
+  <div class="scene" aria-hidden="true">
+    <div class="scene-glow"></div>
+    <div class="scene-wall"></div>
+  </div>
+
+  <!-- Navigation -->
+  <nav class="fixed top-0 left-0 right-0 z-50 bg-black/80 backdrop-blur-lg border-b border-white/10">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-16">
+        <a href="index.html" class="brand" aria-label="Home">
+          <img class="logo-dark" src="assets/images/logo.png" alt="DRMC IT Club logo">
+          <img class="logo-light" src="assets/images/logo-black.png" alt="" aria-hidden="true">
+        </a>
+        <div class="hidden md:flex items-center gap-6">
+          <a href="index.html" class="text-sm font-medium hover:text-teal-400 transition-colors">Fests</a>
+          <a href="dashboard.html" class="text-sm font-medium hover:text-teal-400 transition-colors">My Registrations</a>
+          <a href="admin.html" class="text-sm font-medium hover:text-teal-400 transition-colors">Admin</a>
+          <button id="theme-toggle" class="p-2 rounded-full hover:bg-white/10 transition-colors" aria-label="Toggle theme">
+            <svg id="theme-icon-dark" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/>
+            </svg>
+            <svg id="theme-icon-light" class="w-5 h-5 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Event Details -->
+  <section class="pt-24 pb-12 px-4">
+    <div class="max-w-7xl mx-auto">
+      <div id="event-details">
+        <!-- Loaded dynamically -->
+      </div>
+    </div>
+  </section>
+
+  <!-- Registration Modal -->
+  <div id="registration-modal" class="modal">
+    <div class="modal-content">
+      <div class="flex justify-between items-center mb-6">
+        <h2 class="text-2xl font-bold">Register for Event</h2>
+        <button onclick="closeModal()" class="text-gray-400 hover:text-white text-2xl">&times;</button>
+      </div>
+      <form id="registration-form">
+        <div class="space-y-4">
+          <div>
+            <label class="block text-sm font-medium mb-2 text-gray-300">Full Name *</label>
+            <input type="text" id="reg-name" class="in" required>
+          </div>
+          <div>
+            <label class="block text-sm font-medium mb-2 text-gray-300">Email *</label>
+            <input type="email" id="reg-email" class="in" required>
+          </div>
+          <div>
+            <label class="block text-sm font-medium mb-2 text-gray-300">Phone *</label>
+            <input type="tel" id="reg-phone" class="in" required>
+          </div>
+          <div>
+            <label class="block text-sm font-medium mb-2 text-gray-300">Institution *</label>
+            <input type="text" id="reg-institution" class="in" required>
+          </div>
+          <div>
+            <label class="block text-sm font-medium mb-2 text-gray-300">Team Name (if applicable)</label>
+            <input type="text" id="reg-team" class="in">
+          </div>
+          <div id="payment-section">
+            <label class="block text-sm font-medium mb-2 text-gray-300">bKash Transaction ID *</label>
+            <input type="text" id="reg-txid" class="in" placeholder="Pay via bKash 01814333287" required>
+          </div>
+          <div>
+            <label class="flex items-center gap-2">
+              <input type="checkbox" id="reg-consent" required>
+              <span class="text-sm text-gray-400">I will carry a valid ID and accept that judges' decisions are final *</span>
+            </label>
+          </div>
+        </div>
+        <button type="submit" class="btn w-full mt-6">Complete Registration</button>
+      </form>
+      <div id="registration-success" class="hidden text-center py-8">
+        <div class="text-5xl mb-4">🎉</div>
+        <h3 class="text-2xl font-bold mb-2">Registration Successful!</h3>
+        <p class="text-gray-400 mb-4">Your registration ID</p>
+        <div class="text-3xl font-bold grad mb-4" id="reg-id"></div>
+        <p class="text-sm text-gray-400 mb-6">Keep this ID safe and bring your valid student ID to the event.</p>
+        <button onclick="closeModal()" class="btn">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="border-t border-white/10 mt-20">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <div class="text-center text-sm text-gray-400">
+        <p>© 2026 DRMC IT Club. All rights reserved.</p>
+      </div>
+    </div>
+  </footer>
+
+  <script type="module" src="firebase-client.js"></script>
+  <script>
+    // Mock data
+    const EVENTS = {
+      "ai-web-dev-2026": {
+        id: "ai-web-dev-2026",
+        festId: "tech-carnival-2026",
+        name: "AI Web Development Contest",
+        description: "Build an innovative AI-powered web application in 6 hours. Use modern AI APIs and frameworks to create something amazing. Theme: Smart Club Operations.",
+        category: "Programming",
+        fee: 400,
+        prizes: [12000, 8000, 4000],
+        maxTeamSize: 3,
+        format: "Build an AI web app · 6 hrs",
+        day: "Day 1",
+        deadline: "2026-10-06T23:59:59",
+        capacity: 30,
+        registered: 15,
+        venue: "Computer Lab 1",
+        requirements: "Laptop with internet access, basic knowledge of web development",
+        rules: "1. Teams must build from scratch\n2. Use of AI tools is allowed\n3. Must present working demo\n4. Code must be open source"
+      },
+      "programming-contest-2026": {
+        id: "programming-contest-2026",
+        festId: "tech-carnival-2026",
+        name: "Programming Contest",
+        description: "ICPC-style competitive programming contest. Solve algorithmic problems in 3 hours.",
+        category: "Programming",
+        fee: 500,
+        prizes: [15000, 10000, 5000],
+        maxTeamSize: 3,
+        format: "ICPC-style contest · 3 hrs",
+        day: "Day 3",
+        deadline: "2026-10-06T23:59:59",
+        capacity: 50,
+        registered: 25,
+        venue: "Computer Lab 2",
+        requirements: "Knowledge of algorithms and data structures",
+        rules: "1. No internet access during contest\n2. Only C++, Java, Python allowed\n3. 5 problems of varying difficulty"
+      }
+    };
+
+    const FESTS = {
+      "tech-carnival-2026": {
+        id: "tech-carnival-2026",
+        name: "9th DRMC International Tech Carnival 2026"
+      }
+    };
+
+    // Get event ID from URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const eventId = urlParams.get('id');
+    let currentEvent = null;
+
+    // Format date
+    function formatDate(dateStr) {
+      const date = new Date(dateStr);
+      return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+    }
+
+    // Format currency
+    function formatCurrency(amount) {
+      return amount === 0 ? 'Free' : `BDT ${amount.toLocaleString()}`;
+    }
+
+    // Load event details
+    function loadEvent() {
+      currentEvent = EVENTS[eventId];
+      
+      if (!currentEvent) {
+        document.getElementById('event-details').innerHTML = '<p class="text-red-400">Event not found</p>';
+        return;
+      }
+
+      const fest = FESTS[currentEvent.festId];
+      const spotsLeft = currentEvent.capacity - currentEvent.registered;
+      const isFull = spotsLeft <= 0;
+      const isDeadlinePassed = new Date(currentEvent.deadline) < new Date();
+      const canRegister = !isFull && !isDeadlinePassed;
+
+      document.getElementById('event-details').innerHTML = `
+        <a href="fest.html?id=${currentEvent.festId}" class="text-sm text-gray-400 hover:text-teal-400 mb-4 inline-block">← Back to Fest</a>
+        <div class="grid md:grid-cols-3 gap-8">
+          <div class="md:col-span-2">
+            <div class="chip mb-4">${currentEvent.category}</div>
+            <h1 class="text-4xl font-bold mb-4">${currentEvent.name}</h1>
+            <p class="text-gray-400 mb-6">${currentEvent.description}</p>
+            
+            <div class="box mb-6">
+              <h3 class="font-semibold mb-3">Requirements</h3>
+              <p class="text-sm text-gray-400">${currentEvent.requirements}</p>
+            </div>
+            
+            <div class="box mb-6">
+              <h3 class="font-semibold mb-3">Rules</h3>
+              <p class="text-sm text-gray-400 whitespace-pre-line">${currentEvent.rules}</p>
+            </div>
+          </div>
+          
+          <div>
+            <div class="box sticky top-24">
+              <div class="space-y-4 mb-6">
+                <div class="flex justify-between">
+                  <span class="text-gray-400">Fest</span>
+                  <span class="font-medium">${fest ? fest.name : 'Unknown'}</span>
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-gray-400">Category</span>
+                  <span class="font-medium">${currentEvent.category}</span>
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-gray-400">Format</span>
+                  <span class="font-medium">${currentEvent.format}</span>
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-gray-400">Day</span>
+                  <span class="font-medium">${currentEvent.day}</span>
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-gray-400">Venue</span>
+                  <span class="font-medium">${currentEvent.venue}</span>
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-gray-400">Team Size</span>
+                  <span class="font-medium">${currentEvent.maxTeamSize === 1 ? 'Solo' : `Up to ${currentEvent.maxTeamSize}`}</span>
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-gray-400">Registration Fee</span>
+                  <span class="font-semibold ${currentEvent.fee === 0 ? 'text-teal-400' : 'text-white'}">${formatCurrency(currentEvent.fee)}</span>
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-gray-400">Deadline</span>
+                  <span class="font-medium ${isDeadlinePassed ? 'text-red-400' : ''}">${formatDate(currentEvent.deadline)}</span>
+                </div>
+                ${!isDeadlinePassed ? `
+                  <div class="mt-2">
+                    <span class="text-xs text-gray-500">Time remaining:</span>
+                    <div class="text-sm font-mono" id="deadline-countdown">Loading...</div>
+                  </div>
+                ` : ''}
+                <div class="flex justify-between items-center">
+                  <span class="text-gray-400">Capacity</span>
+                  <div class="text-right">
+                    <span class="${isFull ? 'text-red-400' : spotsLeft < 10 ? 'text-yellow-400' : 'text-teal-400'} font-medium">
+                      ${isFull ? 'Full' : `${spotsLeft} spots left`}
+                    </span>
+                    <div class="w-24 h-2 bg-gray-700 rounded-full mt-1 overflow-hidden">
+                      <div class="h-full ${isFull ? 'bg-red-500' : spotsLeft < 10 ? 'bg-yellow-500' : 'bg-teal-500'}" style="width: ${(currentEvent.registered / currentEvent.capacity) * 100}%"></div>
+                    </div>
+                    <span class="text-xs text-gray-500">${currentEvent.registered}/${currentEvent.capacity} registered</span>
+                  </div>
+                </div>
+              </div>
+              
+              ${currentEvent.prizes.length > 0 ? `
+                <div class="border-t border-white/10 pt-4 mb-6">
+                  <h3 class="font-semibold mb-3">Prizes</h3>
+                  <div class="space-y-2">
+                    ${currentEvent.prizes.map((prize, i) => `
+                      <div class="flex justify-between text-sm">
+                        <span class="text-gray-400">${i + 1}${['st', 'nd', 'rd'][i] || 'th'} Place</span>
+                        <span class="font-semibold grad">BDT ${prize.toLocaleString()}</span>
+                      </div>
+                    `).join('')}
+                  </div>
+                </div>
+              ` : ''}
+              
+              <button 
+                class="btn w-full ${!canRegister ? 'opacity-50 cursor-not-allowed' : ''}" 
+                ${!canRegister ? 'disabled' : ''}
+                onclick="openModal()"
+              >
+                ${isFull ? 'Registration Full' : isDeadlinePassed ? 'Registration Closed' : 'Register Now'}
+              </button>
+              
+              ${isDeadlinePassed ? '<p class="text-xs text-red-400 text-center mt-2">Registration deadline has passed</p>' : ''}
+              ${isFull ? '<p class="text-xs text-red-400 text-center mt-2">Event has reached capacity</p>' : ''}
+            </div>
+          </div>
+        </div>
+      `;
+
+      // Hide payment section if free
+      if (currentEvent.fee === 0) {
+        document.getElementById('payment-section').style.display = 'none';
+        document.getElementById('reg-txid').required = false;
+      }
+
+      // Start deadline countdown if not passed
+      if (!isDeadlinePassed) {
+        startDeadlineCountdown(currentEvent.deadline);
+      }
+    }
+
+    // Deadline countdown timer
+    function startDeadlineCountdown(deadlineStr) {
+      const deadline = new Date(deadlineStr);
+      const countdownEl = document.getElementById('deadline-countdown');
+      
+      function updateCountdown() {
+        const now = new Date();
+        const diff = deadline - now;
+        
+        if (diff <= 0) {
+          countdownEl.textContent = 'Deadline passed';
+          countdownEl.classList.add('text-red-400');
+          // Reload page to update registration status
+          setTimeout(() => location.reload(), 2000);
+          return;
+        }
+        
+        const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+        
+        let timeStr = '';
+        if (days > 0) timeStr += `${days}d `;
+        if (hours > 0 || days > 0) timeStr += `${hours}h `;
+        timeStr += `${minutes}m ${seconds}s`;
+        
+        countdownEl.textContent = timeStr;
+        
+        // Urgent warning when less than 24 hours
+        if (diff < 24 * 60 * 60 * 1000) {
+          countdownEl.classList.add('text-yellow-400');
+        } else if (diff < 2 * 24 * 60 * 60 * 1000) {
+          countdownEl.classList.add('text-teal-400');
+        }
+      }
+      
+      updateCountdown();
+      setInterval(updateCountdown, 1000);
+    }
+
+    // Modal functions
+    function openModal() {
+      document.getElementById('registration-modal').classList.add('active');
+      document.getElementById('registration-form').classList.remove('hidden');
+      document.getElementById('registration-success').classList.add('hidden');
+    }
+
+    function closeModal() {
+      document.getElementById('registration-modal').classList.remove('active');
+    }
+
+    // Form submission
+    document.getElementById('registration-form').addEventListener('submit', async function(e) {
+      e.preventDefault();
+
+      // Double-check capacity and deadline before submission
+      const spotsLeft = currentEvent.capacity - currentEvent.registered;
+      const isFull = spotsLeft <= 0;
+      const isDeadlinePassed = new Date(currentEvent.deadline) < new Date();
+      
+      if (isFull) {
+        alert('Sorry, this event has reached full capacity. Registration is now closed.');
+        closeModal();
+        location.reload();
+        return;
+      }
+      
+      if (isDeadlinePassed) {
+        alert('Sorry, the registration deadline has passed. Registration is now closed.');
+        closeModal();
+        location.reload();
+        return;
+      }
+
+      if (!window.FestDB) {
+        alert('Registration is still loading. Please wait a moment and try again.');
+        return;
+      }
+
+      const submitBtn = this.querySelector('button[type="submit"]');
+      const btnText = submitBtn.textContent;
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Submitting...';
+
+      let regId;
+      try {
+        // Get current user if logged in
+        const currentUser = window.FestAuth ? window.FestAuth.getCurrentUser() : null;
+        const userId = currentUser ? currentUser.uid : null;
+
+        regId = await window.FestDB.submitRegistration({
+          eventId: currentEvent.id,
+          eventName: currentEvent.name,
+          name: document.getElementById('reg-name').value,
+          email: document.getElementById('reg-email').value,
+          phone: document.getElementById('reg-phone').value,
+          institution: document.getElementById('reg-institution').value,
+          teamName: document.getElementById('reg-team').value,
+          txId: document.getElementById('reg-txid').value,
+          consent: document.getElementById('reg-consent').checked,
+          fee: currentEvent.fee,
+          userId: userId
+        });
+      } catch (err) {
+        console.error('Registration failed', err);
+        alert(err && err.code === 'permission-denied'
+          ? 'Registration was rejected. Please check all fields (phone must be 11 digits) and try again.'
+          : (err && err.message) || 'Something went wrong. Please try again.');
+        submitBtn.disabled = false;
+        submitBtn.textContent = btnText;
+        return;
+      }
+
+      submitBtn.disabled = false;
+      submitBtn.textContent = btnText;
+
+      // Remember this registration on this device (used by the dashboard page)
+      const registrations = JSON.parse(localStorage.getItem('userRegistrations') || '[]');
+      registrations.push({
+        regId: regId,
+        eventId: currentEvent.id,
+        status: 'pending',
+        registeredAt: new Date().toISOString()
+      });
+      localStorage.setItem('userRegistrations', JSON.stringify(registrations));
+
+      // Show success
+      document.getElementById('registration-form').classList.add('hidden');
+      document.getElementById('registration-success').classList.remove('hidden');
+      document.getElementById('reg-id').textContent = regId;
+      this.reset();
+
+      // Trigger confetti celebration
+      confetti({
+        particleCount: 150,
+        spread: 100,
+        origin: { y: 0.6 },
+        colors: ['#1de9b6', '#0fa57f', '#2ef2c0', '#17c9a0', '#f59e0b']
+      });
+    });
+
+    // Close modal on backdrop click
+    document.getElementById('registration-modal').addEventListener('click', function(e) {
+      if (e.target === this) {
+        closeModal();
+      }
+    });
+
+    // Theme toggle
+    const themeToggle = document.getElementById('theme-toggle');
+    const themeIconDark = document.getElementById('theme-icon-dark');
+    const themeIconLight = document.getElementById('theme-icon-light');
+    
+    const savedTheme = localStorage.getItem('theme') || 'dark';
+    document.documentElement.setAttribute('data-theme', savedTheme);
+    updateThemeIcons(savedTheme);
+    
+    themeToggle.addEventListener('click', () => {
+      const currentTheme = document.documentElement.getAttribute('data-theme');
+      const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', newTheme);
+      localStorage.setItem('theme', newTheme);
+      updateThemeIcons(newTheme);
+    });
+    
+    function updateThemeIcons(theme) {
+      if (theme === 'dark') {
+        themeIconDark.classList.remove('hidden');
+        themeIconLight.classList.add('hidden');
+      } else {
+        themeIconDark.classList.add('hidden');
+        themeIconLight.classList.remove('hidden');
+      }
+    }
+
+    // Initialize
+    loadEvent();
+  </script>
+</body>
+</html>

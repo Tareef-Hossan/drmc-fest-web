@@ -1,0 +1,42 @@
+{
+  "name": "DRMC Tech Carnival 2026",
+  "short_name": "DRMC Carnival",
+  "description": "9th DRMC International Tech Carnival 2026 - Event Registration Platform",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#000000",
+  "theme_color": "#1de9b6",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/assets/icons/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/assets/icons/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["events", "education", "technology"],
+  "screenshots": [],
+  "shortcuts": [
+    {
+      "name": "Register",
+      "short_name": "Register",
+      "description": "Register for the event",
+      "url": "/#register",
+      "icons": [{ "src": "/assets/icons/icon-96x96.png", "sizes": "96x96" }]
+    },
+    {
+      "name": "Volunteer",
+      "short_name": "Volunteer",
+      "description": "Apply as volunteer",
+      "url": "/#volunteer",
+      "icons": [{ "src": "/assets/icons/icon-96x96.png", "sizes": "96x96" }]
+    }
+  ]
+}

@@ -1,0 +1,11 @@
+# robots.txt for DRMC Tech Carnival 2026
+
+User-agent: *
+Allow: /
+
+# Disallow admin panel from indexing
+Disallow: /admin.html
+Disallow: /dashboard.html
+
+# Sitemap
+Sitemap: https://drmcitclub.com/sitemap.xml
